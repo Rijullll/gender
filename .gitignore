@@ -1,5 +1,3 @@
 __pycache__/
 *.pyc
 .streamlit/
-model.joblib
-categories.joblib
