@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocMind AI - Premium Document Analyzer Agent</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- Tesseract.js -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i data-lucide="cpu"></i>
+                    </div>
+                    <h1>DocMind AI</h1>
+                </div>
+            </div>
+
+            <!-- Upload Box -->
+            <div class="upload-section">
+                <div class="drag-drop-area" id="drag-drop-zone">
+                    <i data-lucide="cloud-upload" class="upload-icon"></i>
+                    <p class="upload-text">Drag & drop files or <span>browse</span></p>
+                    <p class="upload-subtext">PDF, PNG, JPG, WEBP</p>
+                    <input type="file" id="file-input" multiple accept=".pdf,image/png,image/jpeg,image/webp" style="display: none;">
+                </div>
+                <button class="scanner-btn" id="camera-scan-btn">
+                    <i data-lucide="camera"></i>
+                    <span>Camera Scan</span>
+                </button>
+            </div>
+
+            <!-- Document List -->
+            <div class="doc-list-container">
+                <div class="section-title">
+                    <span>Uploaded Documents</span>
+                    <span class="doc-count" id="doc-counter">0</span>
+                </div>
+                <div class="doc-list" id="document-list-el">
+                    <!-- Dynamic Document Items inserted here -->
+                    <div class="empty-docs-state" id="empty-docs-el">
+                        <i data-lucide="file-text"></i>
+                        <p>No documents uploaded yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer Settings -->
+            <div class="sidebar-footer">
+                <button class="footer-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+                    <i data-lucide="sun" class="sun-icon"></i>
+                    <i data-lucide="moon" class="moon-icon"></i>
+                    <span>Theme</span>
+                </button>
+                <button class="footer-btn" id="open-settings-btn" title="Settings">
+                    <i data-lucide="settings"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="main-content">
+            <!-- MIDDLE PANEL: Document Viewer & OCR Editor -->
+            <section class="viewer-panel">
+                <div class="panel-header">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="tab-preview">
+                            <i data-lucide="eye"></i> Preview
+                        </button>
+                        <button class="tab-btn" data-tab="tab-scanner" id="scanner-tab-trigger" style="display: none;">
+                            <i data-lucide="crop"></i> Image Scanner
+                        </button>
+                        <button class="tab-btn" data-tab="tab-ocr">
+                            <i data-lucide="align-left"></i> Extracted Text
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <!-- Tab: Preview -->
+                    <div class="tab-content active" id="tab-preview">
+                        <div class="preview-viewport" id="preview-viewport-el">
+                            <div class="viewer-placeholder">
+                                <i data-lucide="file-up" class="placeholder-icon"></i>
+                                <h3>Document Viewer</h3>
+                                <p>Select or upload a document to view its content.</p>
+                            </div>
+                        </div>
+                        <div class="pagination-controls" id="pdf-pagination" style="display: none;">
+                            <button id="prev-page-btn" class="icon-btn"><i data-lucide="chevron-left"></i></button>
+                            <span class="page-indicator">Page <span id="current-page-num">1</span> of <span id="total-pages-num">1</span></span>
+                            <button id="next-page-btn" class="icon-btn"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Image Scanner / Cropper -->
+                    <div class="tab-content" id="tab-scanner">
+                        <div class="scanner-container">
+                            <div class="canvas-wrapper">
+                                <canvas id="scanner-canvas"></canvas>
+                                <div class="scanner-overlay-instructions" id="scanner-overlay-text">
+                                    Drag the four corners to frame your document, then adjust enhancement parameters below.
+                                </div>
+                            </div>
+                            <div class="scanner-controls">
+                                <div class="control-row">
+                                    <button class="action-btn outline" id="scanner-auto-detect">
+                                        <i data-lucide="scan"></i> Auto Edges
+                                    </button>
+                                    <button class="action-btn outline" id="scanner-rotate">
+                                        <i data-lucide="rotate-cw"></i> Rotate 90°
+                                    </button>
+                                    <button class="action-btn accent" id="scanner-crop-btn">
+                                        <i data-lucide="crop"></i> Crop & Straighten
+                                    </button>
+                                </div>
+                                <div class="adjustments-panel">
+                                    <h4>Enhancements</h4>
+                                    <div class="slider-group">
+                                        <label for="brightness-slider">Brightness</label>
+                                        <input type="range" id="brightness-slider" min="-100" max="100" value="0">
+                                        <span class="slider-val" id="brightness-val">0%</span>
+                                    </div>
+                                    <div class="slider-group">
+                                        <label for="contrast-slider">Contrast</label>
+                                        <input type="range" id="contrast-slider" min="-100" max="100" value="0">
+                                        <span class="slider-val" id="contrast-val">0%</span>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label>Processing Filter</label>
+                                        <div class="filter-options">
+                                            <button class="filter-btn-opt active" data-filter="none">None</button>
+                                            <button class="filter-btn-opt" data-filter="grayscale">Grayscale</button>
+                                            <button class="filter-btn-opt" data-filter="high-contrast">B&W (High Contrast)</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="scanner-actions-footer">
+                                    <button class="action-btn primary" id="scanner-process-final">
+                                        <i data-lucide="check"></i> Apply & Run OCR
+                                    </button>
+                                    <button class="action-btn outline danger" id="scanner-cancel">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: OCR Extracted Text -->
+                    <div class="tab-content" id="tab-ocr">
+                        <div class="ocr-text-container">
+                            <div class="ocr-tools-header">
+                                <div class="search-box">
+                                    <i data-lucide="search"></i>
+                                    <input type="text" id="ocr-search-input" placeholder="Search within document...">
+                                </div>
+                                <div class="ocr-actions">
+                                    <button class="icon-btn" id="ocr-copy-btn" title="Copy text"><i data-lucide="copy"></i></button>
+                                    <button class="icon-btn" id="ocr-download-btn" title="Download TXT"><i data-lucide="download"></i></button>
+                                </div>
+                            </div>
+                            <div class="ocr-progress-overlay" id="ocr-progress-overlay-el" style="display: none;">
+                                <div class="spinner"></div>
+                                <p class="progress-message" id="ocr-status-message">Initializing OCR engine...</p>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" id="ocr-progress-bar-fill-el"></div>
+                                </div>
+                                <span class="progress-percent" id="ocr-progress-percent">0%</span>
+                            </div>
+                            <div class="ocr-text-content" id="ocr-text-display-el" contenteditable="true" placeholder="Extracted text will appear here. You can also edit it."></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: AI Chat Agent -->
+            <section class="chat-panel">
+                <div class="panel-header chat-header">
+                    <div class="agent-profile">
+                        <div class="agent-avatar">
+                            <i data-lucide="bot"></i>
+                        </div>
+                        <div class="agent-info">
+                            <h3>Document AI Assistant</h3>
+                            <span class="status-indicator-badge online">Active</span>
+                        </div>
+                    </div>
+                    <div class="chat-options-group">
+                        <label for="chat-scope-select"><i data-lucide="database" class="icon-sm"></i> Scope:</label>
+                        <select id="chat-scope-select">
+                            <option value="active">Active Document Only</option>
+                            <option value="all">All Uploaded Documents</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chat-messages-container" id="chat-messages-el">
+                    <!-- Default Greeting -->
+                    <div class="chat-message assistant-message">
+                        <div class="msg-avatar"><i data-lucide="bot"></i></div>
+                        <div class="msg-content">
+                            <p>Hello! I am your AI Document Analyzer Agent. Upload documents (PDF, PNG, JPG, WEBP) to get started.</p>
+                            <p>Once uploaded, I'll extract their text via OCR and summarize them. You can then ask me questions about them!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Bottom Area -->
+                <div class="chat-footer">
+                    <!-- Quick Prompt Actions -->
+                    <div class="preset-prompts-container" id="presets-el">
+                        <button class="preset-chip" data-prompt="Summarize this document.">Summarize</button>
+                        <button class="preset-chip" data-prompt="Find all key dates and deadlines.">Find Dates</button>
+                        <button class="preset-chip" data-prompt="List all important action items and tasks.">Action Items</button>
+                        <button class="preset-chip" data-prompt="List all names, organizations, and entities.">Entity List</button>
+                    </div>
+
+                    <form class="chat-input-form" id="chat-form">
+                        <button type="button" class="chat-action-btn" id="voice-input-btn" title="Voice input (Speech to Text)">
+                            <i data-lucide="mic"></i>
+                        </button>
+                        <textarea id="chat-input-textarea" rows="1" placeholder="Ask a question about your document(s)..." required></textarea>
+                        <button type="button" class="chat-action-btn" id="export-chat-btn" title="Export conversation as PDF">
+                            <i data-lucide="download-cloud"></i>
+                        </button>
+                        <button type="submit" class="chat-submit-btn" id="chat-send-btn" title="Send message">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- SETTINGS MODAL -->
+    <div class="modal-backdrop" id="settings-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i data-lucide="sliders"></i> API Settings</h3>
+                <button class="close-modal-btn" id="close-settings-btn"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h4>Choose AI Provider</h4>
+                    <div class="provider-radio-group">
+                        <label class="provider-option">
+                            <input type="radio" name="api-provider" value="gemini" checked>
+                            <span class="provider-label-text">Google Gemini API</span>
+                        </label>
+                        <label class="provider-option">
+                            <input type="radio" name="api-provider" value="openai">
+                            <span class="provider-label-text">OpenAI API</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- API Key inputs -->
+                <div class="form-group" id="gemini-key-group">
+                    <label for="gemini-api-key-input">Gemini API Key</label>
+                    <div class="input-with-toggle">
+                        <input type="password" id="gemini-api-key-input" placeholder="Paste AIzaSy... Gemini API Key">
+                        <button type="button" class="toggle-password-btn" data-input-id="gemini-api-key-input">
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
+                    <p class="field-help">Keys are stored locally in your browser's localStorage.</p>
+                </div>
+
+                <div class="form-group" id="openai-key-group" style="display: none;">
+                    <label for="openai-api-key-input">OpenAI API Key</label>
+                    <div class="input-with-toggle">
+                        <input type="password" id="openai-api-key-input" placeholder="Paste sk-... OpenAI API Key">
+                        <button type="button" class="toggle-password-btn" data-input-id="openai-api-key-input">
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
+                    <p class="field-help">Keys are stored locally in your browser's localStorage.</p>
+                </div>
+
+                <!-- Model selection -->
+                <div class="form-group">
+                    <label for="model-select">AI Model</label>
+                    <select id="model-select">
+                        <!-- Loaded dynamically based on provider -->
+                    </select>
+                </div>
+
+                <!-- System prompt override -->
+                <div class="form-group">
+                    <label for="system-prompt-input">System Instructions Override</label>
+                    <textarea id="system-prompt-input" rows="4">You are an advanced AI Document Analyzer. Answer questions using ONLY the facts extracted from the uploaded document(s). If the information is not contained in the text, politely state that you cannot find it. Quote relevant passages, maintain precision, and avoid hallucinating.</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn primary" id="save-settings-btn">Save Configurations</button>
+                <button class="action-btn outline" id="reset-settings-btn">Reset Defaults</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script File -->
+    <script src="app.js"></script>
+</body>
+</html>
