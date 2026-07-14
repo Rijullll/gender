@@ -179,8 +179,6 @@ def call_gemini(api_key, model, prompt, mime_type=None, b64_data=None, system_pr
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     
     parts = []
-    
-    # Multimodal image or PDF insertion
     if mime_type and b64_data:
         parts.append({
             "inline_data": {
@@ -188,31 +186,20 @@ def call_gemini(api_key, model, prompt, mime_type=None, b64_data=None, system_pr
                 "data": b64_data
             }
         })
-        
     parts.append({"text": prompt})
     
     payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": parts
-            }
-        ],
-        "generationConfig": {
-            "temperature": 0.15
-        }
+        "contents": [{"role": "user", "parts": parts}],
+        "generationConfig": {"temperature": 0.15}
     }
     
     if system_prompt:
-        payload["systemInstruction"] = {
-            "parts": [{"text": system_prompt}]
-        }
+        payload["systemInstruction"] = {"parts": [{"text": system_prompt}]}
 
     try:
         response = requests.post(url, json=payload, headers={"Content-Type": "application/json"})
         if response.status_code != 200:
             return f"Error ({response.status_code}): {response.text}"
-        
         data = response.json()
         if "candidates" in data and data["candidates"][0]["content"]["parts"][0]["text"]:
             return data["candidates"][0]["content"]["parts"][0]["text"]
@@ -223,7 +210,6 @@ def call_gemini(api_key, model, prompt, mime_type=None, b64_data=None, system_pr
 
 def call_openai(api_key, model, prompt, mime_type=None, b64_data=None, system_prompt=None):
     url = "https://api.openai.com/v1/chat/completions"
-    
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -234,18 +220,13 @@ def call_openai(api_key, model, prompt, mime_type=None, b64_data=None, system_pr
         messages.append({"role": "system", "content": system_prompt})
         
     content_list = [{"type": "text", "text": prompt}]
-    
-    # Multimodal support (only images for OpenAI Chat completions endpoint)
     if mime_type and b64_data and mime_type.startswith("image/"):
         content_list.append({
             "type": "image_url",
-            "image_url": {
-                "url": f"data:{mime_type};base64,{b64_data}"
-            }
+            "image_url": {"url": f"data:{mime_type};base64,{b64_data}"}
         })
         
     messages.append({"role": "user", "content": content_list})
-    
     payload = {
         "model": model,
         "messages": messages,
@@ -256,11 +237,65 @@ def call_openai(api_key, model, prompt, mime_type=None, b64_data=None, system_pr
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code != 200:
             return f"Error ({response.status_code}): {response.text}"
-        
         data = response.json()
         return data["choices"][0]["message"]["content"]
     except Exception as e:
         return f"API Exception: {str(e)}"
+
+# --- AUTO PROCESS FUNCTION ---
+def run_ocr_and_analysis(file_id, file_name, file_type, file_bytes, api_key, provider, model_name, system_prompt):
+    # Perform OCR
+    b64_content = base64.b64encode(file_bytes).decode("utf-8")
+    ocr_prompt = "Perform OCR on this document. Extract all readable text. Maintain paragraphs, lists, tables, structural headers, numbers, and dates. Output only the extracted document text without any introductory comments or pleasantries."
+    
+    extracted = ""
+    if not api_key:
+        extracted = "API key missing during upload. Please set your API key in the sidebar and click '⚡ Run OCR & AI Analysis' to extract text."
+        st.session_state.docs[file_id]["extracted_text"] = extracted
+        st.session_state.docs[file_id]["status"] = "key_missing"
+        return
+
+    try:
+        if provider == "Google Gemini":
+            extracted = call_gemini(api_key, model_name, ocr_prompt, 
+                                    mime_type=file_type, 
+                                    b64_data=b64_content, 
+                                    system_prompt="You are a professional document OCR digitizer. Output only raw document text.")
+        else:
+            if file_type == "application/pdf":
+                pdf_reader = pypdf.PdfReader(io.BytesIO(file_bytes))
+                for page_idx, page in enumerate(pdf_reader.pages):
+                    extracted += f"--- PAGE {page_idx+1} ---\n"
+                    extracted += page.extract_text() + "\n\n"
+            else:
+                extracted = call_openai(api_key, model_name, ocr_prompt, 
+                                        mime_type=file_type, 
+                                        b64_data=b64_content)
+        
+        st.session_state.docs[file_id]["extracted_text"] = extracted
+        st.session_state.docs[file_id]["status"] = "done"
+    except Exception as e:
+        st.session_state.docs[file_id]["extracted_text"] = f"OCR Error: {str(e)}"
+        st.session_state.docs[file_id]["status"] = "error"
+        return
+
+    # Auto generate summary
+    if extracted and not extracted.startswith("OCR Error"):
+        sum_prompt = f"Analyze this document. Perform the following tasks:\n1. Identify the Document Type.\n2. Write a 3-5 sentence concise summary.\n3. List 3 key topics.\n4. Extract key dates/metadata.\n\nDocument Extracted Text:\n{extracted[:20000]}"
+        
+        try:
+            summary_res = ""
+            if provider == "Google Gemini":
+                summary_res = call_gemini(api_key, model_name, sum_prompt, system_prompt=system_prompt)
+            else:
+                summary_res = call_openai(api_key, model_name, sum_prompt, system_prompt=system_prompt)
+                
+            st.session_state.docs[file_id]["summary"] = summary_res
+            st.session_state.chat_histories[file_id] = [
+                {"role": "assistant", "content": f"### Document Analyzed: **{file_name}**\n\n{summary_res}"}
+            ]
+        except Exception as e:
+            st.session_state.docs[file_id]["summary"] = f"Summary generation error: {str(e)}"
 
 # --- MAIN APP LOGIC ---
 def render_app():
@@ -300,32 +335,35 @@ def render_app():
         
         st.divider()
         
-        # Document Uploader
-        st.subheader("📤 Upload Documents")
-        uploaded_files = st.file_uploader("Upload PDF or Image files", 
+        # Document Uploader in Sidebar (available always)
+        st.subheader("📤 Upload More Files")
+        uploaded_files = st.file_uploader("Upload PDF or Image", 
                                          type=["pdf", "png", "jpg", "jpeg", "webp"], 
-                                         accept_multiple_files=True)
+                                         accept_multiple_files=True,
+                                         key="sidebar_uploader")
         
         if uploaded_files:
             for file in uploaded_files:
                 file_id = f"doc_{file.name}_{file.size}"
                 if file_id not in st.session_state.docs:
-                    with st.spinner(f"Reading {file.name}..."):
-                        file_bytes = file.read()
-                        
-                        st.session_state.docs[file_id] = {
-                            "id": file_id,
-                            "name": file.name,
-                            "type": file.type,
-                            "raw_bytes": file_bytes,
-                            "processed_bytes": file_bytes,
-                            "extracted_text": "",
-                            "summary": "",
-                            "status": "pending"
-                        }
-                        
-                        if st.session_state.active_doc_id is None:
-                            st.session_state.active_doc_id = file_id
+                    file_bytes = file.read()
+                    
+                    st.session_state.docs[file_id] = {
+                        "id": file_id,
+                        "name": file.name,
+                        "type": file.type,
+                        "raw_bytes": file_bytes,
+                        "processed_bytes": file_bytes,
+                        "extracted_text": "",
+                        "summary": "",
+                        "status": "pending"
+                    }
+                    st.session_state.active_doc_id = file_id
+                    
+                    # Run auto-processing immediately
+                    with st.status(f"Processing {file.name}..."):
+                        run_ocr_and_analysis(file_id, file.name, file.type, file_bytes, api_key, provider, model_name, system_prompt)
+                    st.rerun()
             
         # Document List Switcher
         if st.session_state.docs:
@@ -359,9 +397,39 @@ def render_app():
     st.markdown('<h1 class="main-title">DocMind AI</h1>', unsafe_allow_html=True)
     st.markdown('<p class="tagline">Explore, edit, OCR, and converse with your documents side-by-side.</p>', unsafe_allow_html=True)
 
+    # Empty State Uploader (highly visible in main panel when no documents exist)
     if not st.session_state.docs:
-        # Empty state
-        st.info("💡 Please upload PDF or image files in the sidebar to get started!")
+        st.markdown('<div class="glass-card" style="text-align: center; padding: 40px; margin-top: 20px;">', unsafe_allow_html=True)
+        st.markdown('<h3>📤 Upload your first document</h3>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #94a3b8; margin-bottom: 24px;">Drag and drop a PDF or image here. OCR and AI summarization will run automatically on upload.</p>', unsafe_allow_html=True)
+        
+        main_uploaded_files = st.file_uploader("Choose files", 
+                                               type=["pdf", "png", "jpg", "jpeg", "webp"], 
+                                               accept_multiple_files=True,
+                                               key="main_uploader")
+        
+        if main_uploaded_files:
+            for file in main_uploaded_files:
+                file_id = f"doc_{file.name}_{file.size}"
+                if file_id not in st.session_state.docs:
+                    file_bytes = file.read()
+                    st.session_state.docs[file_id] = {
+                        "id": file_id,
+                        "name": file.name,
+                        "type": file.type,
+                        "raw_bytes": file_bytes,
+                        "processed_bytes": file_bytes,
+                        "extracted_text": "",
+                        "summary": "",
+                        "status": "pending"
+                    }
+                    st.session_state.active_doc_id = file_id
+                    
+                    with st.status(f"Processing {file.name}..."):
+                        run_ocr_and_analysis(file_id, file.name, file.type, file_bytes, api_key, provider, model_name, system_prompt)
+            st.rerun()
+            
+        st.markdown('</div>', unsafe_allow_html=True)
         return
 
     active_doc = st.session_state.docs[st.session_state.active_doc_id]
@@ -376,13 +444,12 @@ def render_app():
         # -- TAB: PREVIEW --
         with tab_preview:
             if active_doc["type"] == "application/pdf":
-                st.info("PDF document uploaded successfully. You can preview the extracted text and interact with the document via the chat interface.")
-                # Optional PDF render helper
+                st.info("PDF document uploaded successfully. Preview text in the Extracted Text tab.")
                 try:
                     pdf_reader = pypdf.PdfReader(io.BytesIO(active_doc["processed_bytes"]))
                     st.write(f"**Total Pages**: {len(pdf_reader.pages)}")
                 except Exception as e:
-                    st.error("Error reading PDF pages.")
+                    st.error("Error reading PDF metadata.")
             else:
                 # Image render
                 image = Image.open(io.BytesIO(active_doc["processed_bytes"]))
@@ -437,25 +504,26 @@ def render_app():
                         img_format = "PNG" if active_doc["type"] == "image/png" else "JPEG"
                         img.save(out_buffer, format=img_format)
                         active_doc["processed_bytes"] = out_buffer.getvalue()
-                        st.toast("Filters applied!")
+                        
+                        # Re-run OCR automatically after adjustments
+                        if api_key:
+                            run_ocr_and_analysis(active_doc["id"], active_doc["name"], active_doc["type"], 
+                                                 active_doc["processed_bytes"], api_key, provider, model_name, system_prompt)
+                        st.toast("Filters applied and text re-analyzed!")
                         st.rerun()
 
         # -- TAB: EXTRACTED TEXT (OCR) --
         with tab_ocr:
             st.markdown("#### OCR Engine Status")
             
-            # Action button to trigger OCR
             trigger_ocr = False
             
-            if active_doc["extracted_text"] == "":
-                st.warning("OCR has not been run on this document yet.")
-                trigger_ocr = st.button("⚡ Perform OCR & AI Analysis", use_container_width=True)
+            if active_doc["extracted_text"] == "" or active_doc["status"] == "key_missing":
+                st.warning("OCR has not been run or is pending an API Key.")
+                trigger_ocr = st.button("⚡ Run OCR & AI Analysis", use_container_width=True)
             else:
                 st.markdown('<span class="ocr-badge">Extracted Text Ready</span>', unsafe_allow_html=True)
                 st.write("")
-                
-                # Search filter
-                search_q = st.text_input("🔍 Search within text:")
                 
                 # Raw text text-area for editing or copying
                 edited_text = st.text_area("Raw Extracted Text (Editable)", 
@@ -478,58 +546,13 @@ def render_app():
                 
             if trigger_ocr:
                 if not api_key:
-                    st.error("Please configure your API key in the sidebar first!")
+                    st.error("Please configure your API key in the sidebar settings first!")
                 else:
-                    with st.spinner("Executing Multimodal OCR and Text Extraction..."):
-                        b64_content = base64.b64encode(active_doc["processed_bytes"]).decode("utf-8")
-                        
-                        ocr_prompt = "Perform OCR on this document. Extract all readable text. Maintain paragraphs, lists, tables, structural headers, numbers, and dates. Output only the extracted document text without any introductory comments or pleasantries."
-                        
-                        # Make API request
-                        extracted = ""
-                        if provider == "Google Gemini":
-                            extracted = call_gemini(api_key, model_name, ocr_prompt, 
-                                                    mime_type=active_doc["type"], 
-                                                    b64_data=b64_content, 
-                                                    system_prompt="You are a professional document OCR digitizer. Output only raw document text.")
-                        else:
-                            # OpenAI (multimodal images only. For PDF we parse locally)
-                            if active_doc["type"] == "application/pdf":
-                                try:
-                                    extracted = ""
-                                    pdf_reader = pypdf.PdfReader(io.BytesIO(active_doc["processed_bytes"]))
-                                    for page_idx, page in enumerate(pdf_reader.pages):
-                                        extracted += f"--- PAGE {page_idx+1} ---\n"
-                                        extracted += page.extract_text() + "\n\n"
-                                except Exception as e:
-                                    st.error("Local PDF parsing error. Please check PDF file.")
-                            else:
-                                extracted = call_openai(api_key, model_name, ocr_prompt, 
-                                                        mime_type=active_doc["type"], 
-                                                        b64_data=b64_content)
-                                
-                        active_doc["extracted_text"] = extracted
-                        st.toast("OCR text extracted!")
-                        
-                    # Auto generate summary and details
-                    with st.spinner("AI Analysis: Generating document summary and classification..."):
-                        sum_prompt = f"Analyze this document. Perform the following tasks:\n1. Identify the Document Type.\n2. Write a 3-5 sentence concise summary.\n3. List 3 key topics.\n4. Extract key dates/metadata.\n\nDocument Extracted Text:\n{active_doc['extracted_text'][:20000]}"
-                        
-                        summary_res = ""
-                        if provider == "Google Gemini":
-                            summary_res = call_gemini(api_key, model_name, sum_prompt, system_prompt=system_prompt)
-                        else:
-                            summary_res = call_openai(api_key, model_name, sum_prompt, system_prompt=system_prompt)
-                            
-                        active_doc["summary"] = summary_res
-                        
-                        # Populate active doc specific chat history
-                        st.session_state.chat_histories[active_doc["id"]] = [
-                            {"role": "assistant", "content": f"### Document Analyzed: **{active_doc['name']}**\n\n{summary_res}"}
-                        ]
-                        
-                        st.toast("AI analysis complete!")
-                        st.rerun()
+                    with st.status("Executing Multimodal OCR and Text Extraction..."):
+                        run_ocr_and_analysis(active_doc["id"], active_doc["name"], active_doc["type"], 
+                                             active_doc["processed_bytes"], api_key, provider, model_name, system_prompt)
+                    st.toast("OCR and AI analysis complete!")
+                    st.rerun()
 
     # --- RIGHT COLUMN: CHAT INTERFACE ---
     with col_chat:
@@ -579,7 +602,7 @@ def render_app():
         if user_query:
             if not api_key:
                 st.error("Please configure your API key in the sidebar settings first!")
-            elif scope == "Active Document Only" and active_doc["extracted_text"] == "":
+            elif scope == "Active Document Only" and (active_doc["extracted_text"] == "" or active_doc["status"] == "key_missing"):
                 st.error("Please run OCR on the active document first to build text context!")
             else:
                 # Add user query to log
@@ -595,7 +618,7 @@ def render_app():
                 else:
                     # All docs
                     for idx, (doc_id, doc) in enumerate(st.session_state.docs.items()):
-                        if doc["extracted_text"] != "":
+                        if doc["extracted_text"] != "" and doc["status"] == "done":
                             context_str += f"Document [{idx+1}] Name: {doc['name']}\nText:\n{doc['extracted_text']}\n---\n"
                 
                 prompt = f"""Use the document context below to answer the user's question. Answer using ONLY these facts. If not found, say so. Quote relevant sections.
