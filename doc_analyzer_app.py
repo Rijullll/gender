@@ -296,7 +296,7 @@ def render_app():
             
         system_prompt = st.text_area("System Prompt", 
                                      value="You are an advanced AI Document Analyzer. Answer questions using ONLY the facts extracted from the uploaded document(s). If the information is not contained in the text, politely state that you cannot find it. Quote relevant passages, maintain precision, and avoid hallucinating.",
-                                     rows=4)
+                                     height=150)
         
         st.divider()
         
