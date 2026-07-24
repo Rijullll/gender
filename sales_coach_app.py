@@ -362,7 +362,20 @@ def call_gemini_api(api_key, system_prompt, prompt, model="gemini-1.5-flash"):
             res_data = response.json()
             return res_data["candidates"][0]["content"]["parts"][0]["text"]
         else:
-            st.error(f"API Error ({response.status_code}): {response.text}")
+            try:
+                err_json = response.json()
+                err_msg = err_json.get("error", {}).get("message", response.text)
+            except:
+                err_msg = response.text
+                
+            if response.status_code == 400:
+                st.error(f"⚠️ **Bad Request (400):** {err_msg}\n\n*Tip: The model you selected may not be supported on this API key's tier, or the request format is invalid.*")
+            elif response.status_code == 403:
+                st.error(f"⚠️ **Invalid API Key (403):** {err_msg}\n\n*Tip: Please check for spelling mistakes, spaces, or restrictions on your Gemini API key in Google AI Studio.*")
+            elif response.status_code == 429:
+                st.error(f"⚠️ **Rate Limit Exceeded (429):** {err_msg}\n\n*Tip: You are using the free tier and have sent too many requests. Wait 60 seconds and try again.*")
+            else:
+                st.error(f"⚠️ **Google API Error ({response.status_code}):** {err_msg}")
             return None
     except Exception as e:
         st.error(f"Failed to connect to the model: {str(e)}")
@@ -445,8 +458,16 @@ with st.sidebar:
 
     model_option = st.selectbox(
         "AI Coaching Model",
-        ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.5-flash"],
-        index=0
+        [
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-pro",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ],
+        index=5  # Default to gemini-1.5-flash as the most robust free fallback
     )
     
     st.divider()
