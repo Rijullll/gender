@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Inventory Management System</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-boxes-stacked brand-icon animate-pulse"></i>
+          <span>SmartStock</span>
+        </div>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="sidebar-user-card">
+        <div class="user-avatar-wrapper">
+          <div class="user-avatar" id="sidebarAvatar">A</div>
+          <span class="user-role-badge status-pill active" id="sidebarRoleBadge">Admin</span>
+        </div>
+        <div class="user-info">
+          <h4 id="sidebarUserName">Administrator</h4>
+          <p id="sidebarUserSub">Full System Access</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a href="#" class="menu-item active" data-target="dashboard">
+          <i class="fa-solid fa-chart-pie menu-icon"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="menu-item" data-target="products">
+          <i class="fa-solid fa-box menu-icon"></i>
+          <span>Products</span>
+        </a>
+        <a href="#" class="menu-item" data-target="categories">
+          <i class="fa-solid fa-tags menu-icon"></i>
+          <span>Categories</span>
+        </a>
+        <a href="#" class="menu-item" data-target="suppliers">
+          <i class="fa-solid fa-truck-ramp-box menu-icon"></i>
+          <span>Suppliers</span>
+        </a>
+        <a href="#" class="menu-item" data-target="stock">
+          <i class="fa-solid fa-arrow-right-arrow-left menu-icon"></i>
+          <span>Stock Flow</span>
+        </a>
+        <a href="#" class="menu-item" data-target="alerts">
+          <i class="fa-solid fa-triangle-exclamation menu-icon"></i>
+          <span>Low Stock Alerts</span>
+          <span class="menu-badge badge-danger" id="sidebarAlertCount">0</span>
+        </a>
+        <a href="#" class="menu-item" data-target="reports">
+          <i class="fa-solid fa-file-invoice-dollar menu-icon"></i>
+          <span>Reports Center</span>
+        </a>
+        <a href="#" class="menu-item" data-target="settings">
+          <i class="fa-solid fa-gears menu-icon"></i>
+          <span>System Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p>&copy; 2026 SmartStock Inc.</p>
+        <small>Version 2.4.0</small>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      
+      <!-- Top Header Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="header-search">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="globalSearchInput" placeholder="Quick search product or scan barcode...">
+            <button class="barcode-scan-btn" id="globalScanSimBtn" title="Simulate Barcode Scan">
+              <i class="fa-solid fa-barcode"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Role Switcher Control -->
+          <div class="role-switcher-container">
+            <span class="switcher-label">Role:</span>
+            <div class="role-btn-group">
+              <button class="role-btn active" id="roleBtnAdmin">Admin</button>
+              <button class="role-btn" id="roleBtnStaff">Staff</button>
+            </div>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="icon-control-btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+
+          <!-- Notification Trigger -->
+          <div class="notification-wrapper">
+            <button class="icon-control-btn" id="notificationBtn" title="Notifications">
+              <i class="fa-solid fa-bell"></i>
+              <span class="notification-badge hidden" id="headerNotificationCount">0</span>
+            </button>
+            <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notif-header">
+                <h3>Notifications</h3>
+                <button class="notif-clear-btn" id="notifClearBtn">Dismiss All</button>
+              </div>
+              <div class="notif-list" id="notificationList">
+                <div class="notif-empty">
+                  <i class="fa-solid fa-circle-check notif-empty-icon text-success"></i>
+                  <p>All stock levels normal</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Toast Container for Toast Notifications -->
+      <div class="toast-container" id="toastContainer"></div>
+
+      <!-- Application Page View Container -->
+      <div class="page-container">
+
+        <!-- ============================================ -->
+        <!-- MODULE 1: DASHBOARD VIEW                    -->
+        <!-- ============================================ -->
+        <section class="page-view active" id="page-dashboard">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Dashboard Overview</h1>
+              <p class="page-subtitle">Real-time summaries of your warehouse inventory status</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="app.showStockModal('Stock In')">
+                <i class="fa-solid fa-plus-circle"></i> Stock In
+              </button>
+              <button class="btn btn-primary" onclick="app.showProductModal()">
+                <i class="fa-solid fa-plus"></i> New Product
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid -->
+          <div class="kpi-grid">
+            <div class="kpi-card bg-indigo-gradient">
+              <div class="kpi-icon-box">
+                <i class="fa-solid fa-box"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Total Products</h3>
+                <div class="kpi-value" id="kpi-total-products">0</div>
+                <p class="kpi-detail"><span id="kpi-active-categories">0</span> Active Categories</p>
+              </div>
+            </div>
+            <div class="kpi-card bg-blue-gradient">
+              <div class="kpi-icon-box">
+                <i class="fa-solid fa-cubes"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Available Stock</h3>
+                <div class="kpi-value" id="kpi-total-stock">0</div>
+                <p class="kpi-detail">Units stored in warehouse</p>
+              </div>
+            </div>
+            <div class="kpi-card bg-orange-gradient">
+              <div class="kpi-icon-box">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Low Stock Items</h3>
+                <div class="kpi-value text-glow-orange" id="kpi-low-stock">0</div>
+                <p class="kpi-detail">At or below reorder level</p>
+              </div>
+            </div>
+            <div class="kpi-card bg-red-gradient">
+              <div class="kpi-icon-box">
+                <i class="fa-solid fa-circle-xmark"></i>
+              </div>
+              <div class="kpi-content">
+                <h3>Out of Stock</h3>
+                <div class="kpi-value text-glow-red" id="kpi-out-stock">0</div>
+                <p class="kpi-detail">Urgent replenishment needed</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Analytics Charts Section -->
+          <div class="dashboard-grid">
+            <div class="chart-panel">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-chart-bar panel-icon text-indigo"></i>Stock Level Comparisons</h3>
+                <span class="panel-info">Top products against reorder thresholds</span>
+              </div>
+              <div class="panel-body chart-container-wrapper">
+                <canvas id="stockLevelChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-panel">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-chart-pie panel-icon text-blue"></i>Inventory Value Distribution</h3>
+                <span class="panel-info">Financial worth divided by Category</span>
+              </div>
+              <div class="panel-body chart-container-wrapper font-narrow-chart">
+                <canvas id="categoryValueChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity & Quick Alerts Grid -->
+          <div class="dashboard-grid grid-3-2">
+            <div class="card-panel">
+              <div class="panel-header flex-between">
+                <h3><i class="fa-solid fa-clock-rotate-left panel-icon text-gray"></i>Recent Transactions</h3>
+                <a href="#" class="panel-link-action" onclick="app.switchView('stock')">View All</a>
+              </div>
+              <div class="panel-body">
+                <div class="activity-timeline" id="recentActivityList">
+                  <!-- Dynamic content loaded via JS -->
+                </div>
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-circle-exclamation panel-icon text-red"></i>Critical Action Items</h3>
+              </div>
+              <div class="panel-body">
+                <div class="critical-actions-list" id="criticalActionsList">
+                  <!-- Dynamic content loaded via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 2: PRODUCT MANAGEMENT VIEW           -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-products">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Product Catalog</h1>
+              <p class="page-subtitle">Track, filter, and modify details of all warehouse merchandise</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary admin-only" onclick="app.showProductModal()">
+                <i class="fa-solid fa-plus"></i> Add New Product
+              </button>
+              <button class="btn btn-secondary staff-only disabled-lock" title="Admin rights required to add product">
+                <i class="fa-solid fa-lock"></i> Add New Product
+              </button>
+            </div>
+          </div>
+
+          <!-- Advanced Filters Bar -->
+          <div class="filter-card">
+            <div class="search-col">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="prodFilterSearch" placeholder="Search by name, ID, or barcode...">
+            </div>
+            <div class="filter-selectors">
+              <div class="select-wrapper">
+                <select id="prodFilterCategory">
+                  <option value="">All Categories</option>
+                </select>
+              </div>
+              <div class="select-wrapper">
+                <select id="prodFilterSupplier">
+                  <option value="">All Suppliers</option>
+                </select>
+              </div>
+              <div class="select-wrapper">
+                <select id="prodFilterStockStatus">
+                  <option value="">All Stock Levels</option>
+                  <option value="instock">In Stock Only</option>
+                  <option value="lowstock">Low Stock (Alerts)</option>
+                  <option value="outofstock">Out of Stock</option>
+                </select>
+              </div>
+              <button class="btn-icon-clear" id="prodFilterResetBtn" title="Reset Filters">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Products Table Card -->
+          <div class="table-card">
+            <div class="table-responsive">
+              <table id="productsTable">
+                <thead>
+                  <tr>
+                    <th>Product Details</th>
+                    <th>Product ID</th>
+                    <th>Category</th>
+                    <th>Supplier</th>
+                    <th>Purchase / Sell</th>
+                    <th class="text-center">Stock Quantity</th>
+                    <th>Status</th>
+                    <th class="text-right admin-only">Actions</th>
+                    <th class="text-right staff-only">Lock Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                  <!-- Dynamic content loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Pagination & Page Size -->
+            <div class="table-footer">
+              <div class="footer-left">
+                <span>Show</span>
+                <select id="prodPageSizeSelect">
+                  <option value="5">5</option>
+                  <option value="10" selected>10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select>
+                <span>entries per page</span>
+              </div>
+              <div class="footer-right">
+                <span class="pagination-info" id="prodPaginationInfo">Showing 1-10 of 100 entries</span>
+                <div class="pagination-controls" id="prodPaginationControls">
+                  <!-- Dynamic controls -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 3: CATEGORY MANAGEMENT VIEW          -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-categories">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Category Settings</h1>
+              <p class="page-subtitle">Group your store inventory logically into searchable classes</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary admin-only" onclick="app.showCategoryModal()">
+                <i class="fa-solid fa-folder-plus"></i> Add Category
+              </button>
+              <button class="btn btn-secondary staff-only disabled-lock" title="Admin rights required to manage categories">
+                <i class="fa-solid fa-lock"></i> Add Category
+              </button>
+            </div>
+          </div>
+
+          <div class="category-supplier-container">
+            <!-- Left Side: Table -->
+            <div class="table-card flex-2">
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th style="width: 15%">ID</th>
+                      <th>Category Name</th>
+                      <th class="text-center" style="width: 25%">Active Products</th>
+                      <th class="text-right" style="width: 25%">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="categoriesTableBody">
+                    <!-- Dynamic content loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Side: Details / Analytics Card -->
+            <div class="card-panel flex-1">
+              <div class="panel-header">
+                <h3>Category Analytics</h3>
+              </div>
+              <div class="panel-body">
+                <div class="stat-list" id="categoryStatList">
+                  <!-- Dynamic Category Stats -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 4: SUPPLIER MANAGEMENT VIEW          -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-suppliers">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Supplier Directory</h1>
+              <p class="page-subtitle">Manage business wholesalers, manufacturers, and contact logistics</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary admin-only" onclick="app.showSupplierModal()">
+                <i class="fa-solid fa-user-plus"></i> Add Supplier
+              </button>
+              <button class="btn btn-secondary staff-only disabled-lock" title="Admin rights required to manage suppliers">
+                <i class="fa-solid fa-lock"></i> Add Supplier
+              </button>
+            </div>
+          </div>
+
+          <!-- Suppliers Cards View -->
+          <div class="suppliers-grid" id="suppliersGrid">
+            <!-- Dynamic Supplier Cards -->
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 5: STOCK FLOW MANAGEMENT VIEW        -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-stock">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Inventory Stock Flow</h1>
+              <p class="page-subtitle">Post physical transactions or inspect structural historical audit logs</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-success" onclick="app.showStockModal('Stock In')">
+                <i class="fa-solid fa-arrow-trend-up"></i> Stock In (Replenish)
+              </button>
+              <button class="btn btn-danger" onclick="app.showStockModal('Stock Out')">
+                <i class="fa-solid fa-arrow-trend-down"></i> Stock Out (Deduct)
+              </button>
+            </div>
+          </div>
+
+          <div class="stock-flow-layout">
+            <!-- Left Side: Transaction Filter / Logger -->
+            <div class="table-card">
+              <div class="panel-header flex-between">
+                <h3>Stock Audit Log</h3>
+                <div class="header-filters">
+                  <select id="txnFilterType" class="select-sm">
+                    <option value="">All Transactions</option>
+                    <option value="Stock In">Stock In Only</option>
+                    <option value="Stock Out">Stock Out Only</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>TXN ID</th>
+                      <th>Product</th>
+                      <th>Type</th>
+                      <th class="text-center">Quantity</th>
+                      <th>Date &amp; Time</th>
+                      <th>Notes / Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsTableBody">
+                    <!-- Dynamic content loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 6: LOW STOCK ALERTS VIEW             -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-alerts">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">Stock Replenishment Center</h1>
+              <p class="page-subtitle">Critical products matching or falling below designated safety levels</p>
+            </div>
+          </div>
+
+          <div class="alerts-summary-bar card-gradient-glow mb-4">
+            <div class="summary-col">
+              <i class="fa-solid fa-triangle-exclamation text-orange animate-bounce"></i>
+              <div>
+                <h4 id="alertCriticalCountText">0 Critical Warnings</h4>
+                <p>Items immediately require restocking to avoid operational downtime</p>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="reorderAllBtn">
+              <i class="fa-solid fa-cart-shopping"></i> Reorder Critical Inventory
+            </button>
+          </div>
+
+          <div class="table-card">
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product Details</th>
+                    <th>Product ID</th>
+                    <th class="text-center">Current Stock</th>
+                    <th class="text-center">Safety Reorder Level</th>
+                    <th>Urgency Level</th>
+                    <th class="text-right">Action Quick-Link</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockTableBody">
+                  <!-- Dynamic content loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 7: REPORTS VIEW                      -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-reports">
+          <div class="page-header-row no-print">
+            <div>
+              <h1 class="page-title">Executive Reports &amp; Analytics</h1>
+              <p class="page-subtitle">Download analytical summaries and stock movement breakdowns</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary" onclick="app.exportToCSV()">
+                <i class="fa-solid fa-file-csv"></i> Export CSV
+              </button>
+              <button class="btn btn-primary" onclick="app.printReport()">
+                <i class="fa-solid fa-print"></i> Print / PDF Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Printable Report Container -->
+          <div class="report-print-container" id="reportPrintArea">
+            <div class="print-header">
+              <h2>SmartStock Inventory Executive Report</h2>
+              <p>Generated Date: <span id="reportPrintDate">2026-07-26</span></p>
+              <p>System User Role: <span id="reportPrintRole">Admin</span></p>
+              <hr class="my-4">
+            </div>
+
+            <!-- Aggregate Stats Grid -->
+            <div class="reports-stats-grid">
+              <div class="rep-stat-card">
+                <h5>Total Assets Capitalized</h5>
+                <div class="rep-val text-indigo" id="rep-total-value">$0.00</div>
+                <p>Value calculated at Purchase Price</p>
+              </div>
+              <div class="rep-stat-card">
+                <h5>Estimated Selling Value</h5>
+                <div class="rep-val text-success" id="rep-selling-value">$0.00</div>
+                <p>Potential revenue at Selling Price</p>
+              </div>
+              <div class="rep-stat-card">
+                <h5>Projected Net Profit Margin</h5>
+                <div class="rep-val text-blue" id="rep-profit-margin">$0.00</div>
+                <p>Gross difference between values</p>
+              </div>
+              <div class="rep-stat-card">
+                <h5>Stock Turn Ratio Indicator</h5>
+                <div class="rep-val text-orange" id="rep-average-markup">0%</div>
+                <p>Average product markup percentage</p>
+              </div>
+            </div>
+
+            <!-- Detailed Report Tabulations -->
+            <div class="report-tables-section">
+              <div class="report-card">
+                <div class="card-title-header">
+                  <h3>Category Valuation Summary</h3>
+                </div>
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>Category Name</th>
+                      <th class="text-center">Unique SKUs</th>
+                      <th class="text-center">Total Stock Qty</th>
+                      <th class="text-right">Purchase Asset Value</th>
+                      <th class="text-right">Selling Potential Value</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportCategoryTableBody">
+                    <!-- Dynamic content loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="report-card mt-4">
+                <div class="card-title-header">
+                  <h3>Critical Stock Levels Report</h3>
+                </div>
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Product Name</th>
+                      <th>Supplier</th>
+                      <th class="text-center">Quantity</th>
+                      <th class="text-center">Safety Limit</th>
+                      <th class="text-right">Required Replenish</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportLowStockTableBody">
+                    <!-- Dynamic content loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- MODULE 8: SYSTEM SETTINGS VIEW              -->
+        <!-- ============================================ -->
+        <section class="page-view" id="page-settings">
+          <div class="page-header-row">
+            <div>
+              <h1 class="page-title">System Administration Settings</h1>
+              <p class="page-subtitle">Configure business profiles, backup variables, and clear data store values</p>
+            </div>
+          </div>
+
+          <div class="settings-layout">
+            <div class="settings-card card-panel">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-building-circle-gear text-indigo mr-2"></i>Business Identity</h3>
+              </div>
+              <div class="panel-body">
+                <form id="settingsBusinessForm" onsubmit="event.preventDefault(); app.saveSettings();">
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label>Store / Business Name</label>
+                      <input type="text" id="settingBusinessName" value="SmartStock Inc.">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label>Base Currency Code</label>
+                      <input type="text" id="settingCurrency" value="USD ($)">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label>Critical Alert Trigger Margin (%)</label>
+                      <input type="number" id="settingAlertMargin" value="10" min="0" max="100">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-2">Save Configurations</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="settings-card card-panel mt-4">
+              <div class="panel-header">
+                <h3><i class="fa-solid fa-database text-blue mr-2"></i>Data Sync &amp; Disaster Recovery</h3>
+              </div>
+              <div class="panel-body">
+                <p class="text-muted mb-4">Export or import the full database state to synchronize terminals or recover from device crashes.</p>
+                <div class="sync-actions-row">
+                  <button class="btn btn-secondary" onclick="app.downloadBackupJSON()">
+                    <i class="fa-solid fa-download"></i> Backup Database (JSON)
+                  </button>
+                  <label for="importBackupInput" class="btn btn-secondary mb-0 cursor-pointer">
+                    <i class="fa-solid fa-upload"></i> Restore Database (JSON)
+                  </label>
+                  <input type="file" id="importBackupInput" class="hidden" accept=".json" onchange="app.uploadBackupJSON(event)">
+                  <button class="btn btn-danger" onclick="app.confirmResetDatabase()">
+                    <i class="fa-solid fa-trash-arrow-up"></i> Reset DB to Factory Defaults
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL WINDOWS                                -->
+  <!-- ============================================ -->
+
+  <!-- MODAL 1: ADD/EDIT PRODUCT -->
+  <div class="modal-backdrop" id="productModal">
+    <div class="modal-container modal-lg">
+      <div class="modal-header">
+        <h3 id="productModalTitle">Add New Inventory Item</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('productModal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm" class="grid-form" onsubmit="event.preventDefault(); app.handleProductSubmit();">
+          <input type="hidden" id="prodFormId">
+          
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label class="required-label">Product Name</label>
+              <input type="text" id="prodFormName" placeholder="e.g. Dell Latitude 5420 Laptop" required>
+            </div>
+            <div class="form-group flex-1">
+              <label>Barcode / SKU Code (Optional)</label>
+              <input type="text" id="prodFormBarcode" placeholder="e.g. 783940284">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="required-label">Category</label>
+              <div class="select-row">
+                <select id="prodFormCategory" required></select>
+                <button type="button" class="btn-sm btn-secondary admin-only" onclick="app.showCategoryModal()" title="Add Category">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="form-group flex-1">
+              <label class="required-label">Supplier Wholesaler</label>
+              <div class="select-row">
+                <select id="prodFormSupplier" required></select>
+                <button type="button" class="btn-sm btn-secondary admin-only" onclick="app.showSupplierModal()" title="Add Supplier">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="required-label">Purchase Price ($)</label>
+              <input type="number" id="prodFormPurchasePrice" step="0.01" min="0" placeholder="0.00" required oninput="app.calculateMarkup()">
+            </div>
+            <div class="form-group flex-1">
+              <label class="required-label">Selling Retail Price ($)</label>
+              <input type="number" id="prodFormSellingPrice" step="0.01" min="0" placeholder="0.00" required oninput="app.calculateMarkup()">
+            </div>
+            <div class="form-group flex-1">
+              <label>Projected Margin / Markup</label>
+              <div class="readonly-badge" id="prodFormMarkupBadge">0% Markup</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="required-label">Current Stock Count</label>
+              <input type="number" id="prodFormQuantity" min="0" placeholder="e.g. 50" required>
+            </div>
+            <div class="form-group flex-1">
+              <label class="required-label">Reorder Safety Level</label>
+              <input type="number" id="prodFormReorder" min="0" placeholder="e.g. 10" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label>Select Mockup Asset Theme</label>
+              <select id="prodFormImageTheme">
+                <option value="electronics">Electronics Style</option>
+                <option value="office">Office Supplies Style</option>
+                <option value="furniture">Furniture Style</option>
+                <option value="apparel">Apparel Style</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="app.closeModal('productModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Product Details</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: ADD/EDIT CATEGORY -->
+  <div class="modal-backdrop" id="categoryModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="categoryModalTitle">Add Inventory Category</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('categoryModal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="categoryForm" onsubmit="event.preventDefault(); app.handleCategorySubmit();">
+          <input type="hidden" id="categoryFormId">
+          <div class="form-group">
+            <label class="required-label">Category Name</label>
+            <input type="text" id="categoryFormName" placeholder="e.g. Heavy Machineries" required>
+          </div>
+          <div class="modal-footer px-0 pb-0 pt-3">
+            <button type="button" class="btn btn-secondary" onclick="app.closeModal('categoryModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: ADD/EDIT SUPPLIER -->
+  <div class="modal-backdrop" id="supplierModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="supplierModalTitle">Add Contact Supplier</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('supplierModal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="supplierForm" onsubmit="event.preventDefault(); app.handleSupplierSubmit();">
+          <input type="hidden" id="supplierFormId">
+          <div class="form-group mb-2">
+            <label class="required-label">Supplier/Business Name</label>
+            <input type="text" id="supplierFormName" placeholder="e.g. Zenith Distributors" required>
+          </div>
+          <div class="form-group mb-2">
+            <label class="required-label">Contact Person Name</label>
+            <input type="text" id="supplierFormPerson" placeholder="e.g. Arthur Pendragon" required>
+          </div>
+          <div class="form-row mb-2">
+            <div class="form-group flex-1">
+              <label class="required-label">Phone Number</label>
+              <input type="tel" id="supplierFormPhone" placeholder="+1-234-567-890" required>
+            </div>
+            <div class="form-group flex-1">
+              <label class="required-label">Email Address</label>
+              <input type="email" id="supplierFormEmail" placeholder="vendor@zenith.com" required>
+            </div>
+          </div>
+          <div class="form-group mb-4">
+            <label>Physical Address</label>
+            <textarea id="supplierFormAddress" rows="2" placeholder="Street name, Suite, City, ZIP"></textarea>
+          </div>
+          <div class="modal-footer px-0 pb-0 pt-2">
+            <button type="button" class="btn btn-secondary" onclick="app.closeModal('supplierModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Contact</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: STOCK TRANSACTION (STOCK IN/OUT) -->
+  <div class="modal-backdrop" id="stockModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="stockModalTitle">Record Stock replenishment</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('stockModal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="stockForm" onsubmit="event.preventDefault(); app.handleStockSubmit();">
+          <div class="form-group mb-2">
+            <label class="required-label">Select Product Item</label>
+            <select id="stockFormProduct" required onchange="app.updateStockFormLimit()"></select>
+          </div>
+          <div class="form-row mb-2">
+            <div class="form-group flex-1">
+              <label>Current Warehouse Stock</label>
+              <div class="readonly-badge bg-gray" id="stockFormCurrentVal">0 units</div>
+            </div>
+            <div class="form-group flex-1">
+              <label class="required-label">Transaction Type</label>
+              <div class="readonly-badge bg-blue" id="stockFormTypeVal">Stock In</div>
+            </div>
+          </div>
+          <div class="form-group mb-2">
+            <label class="required-label">Quantity to Shift</label>
+            <input type="number" id="stockFormQty" min="1" placeholder="Enter positive quantity" required>
+            <span class="text-danger-small hidden" id="stockFormQtyWarning">Error: Deducted quantity exceeds available warehouse stock!</span>
+          </div>
+          <div class="form-group mb-3">
+            <label>Transaction Notes / Remarks</label>
+            <input type="text" id="stockFormRemarks" placeholder="e.g. Restock from PO #4092, damage disposal">
+          </div>
+          <div class="modal-footer px-0 pb-0 pt-2">
+            <button type="button" class="btn btn-secondary" onclick="app.closeModal('stockModal')">Cancel</button>
+            <button type="submit" class="btn btn-primary">Post Transaction</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: BARCODE SCANNER EMULATOR -->
+  <div class="modal-backdrop" id="scanModal">
+    <div class="modal-container modal-md">
+      <div class="modal-header">
+        <h3>Barcode Scan Emulator</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('scanModal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="mb-4 text-muted">Simulate a barcode laser scanner by selecting one of our database product barcodes or entering custom numbers.</p>
+        
+        <div class="scanner-laser-box mb-4">
+          <div class="laser-line"></div>
+          <i class="fa-solid fa-barcode scanner-bg-icon"></i>
+        </div>
+
+        <div class="form-group text-left mb-4">
+          <label>Select Registered Product Code</label>
+          <select id="scanSelector" class="form-control mb-3" onchange="document.getElementById('scanManualCode').value = this.value">
+            <option value="">-- Choose registered SKU --</option>
+          </select>
+          <div class="text-divider mb-3"><span>OR</span></div>
+          <label>Type / Swipe Raw Barcode Text</label>
+          <input type="text" id="scanManualCode" class="form-control text-center text-large" placeholder="e.g. 097855171734">
+        </div>
+
+        <div class="modal-footer px-0 pb-0">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('scanModal')">Close</button>
+          <button type="button" class="btn btn-primary" onclick="app.triggerScanEmit()">Simulate Scan Laser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Application Scripts -->
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
