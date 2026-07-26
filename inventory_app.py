@@ -281,7 +281,7 @@ st.markdown("""
     .role-admin { background-color: #2563eb; }
     .role-staff { background-color: #0d9488; }
 </style>
-""", unsafe_allow_dict=True, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ==========================================================================
 # 3. SIDEBAR NAVIGATION & ROLE SELECTOR
