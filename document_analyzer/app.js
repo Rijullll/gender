@@ -14,7 +14,7 @@ const state = {
         provider: 'gemini',
         geminiKey: '',
         openaiKey: '',
-        model: 'gemini-1.5-flash',
+        model: 'gemini-3.5-flash',
         systemPrompt: 'You are an advanced AI Document Analyzer. Answer questions using ONLY the facts extracted from the uploaded document(s). If the information is not contained in the text, politely state that you cannot find it. Quote relevant passages, maintain precision, and avoid hallucinating.'
     },
     chatHistory: {
@@ -43,7 +43,9 @@ const state = {
 // Available AI Models configuration
 const modelConfigs = {
     gemini: [
-        { name: 'Gemini 1.5 Flash (Fast, Recommended)', id: 'gemini-1.5-flash' },
+        { name: 'Gemini 3.5 Flash (Fast, GA)', id: 'gemini-3.5-flash' },
+        { name: 'Gemini 3.5 Flash Lite (Low Latency)', id: 'gemini-3.5-flash-lite' },
+        { name: 'Gemini 1.5 Flash (Legacy)', id: 'gemini-1.5-flash' },
         { name: 'Gemini 1.5 Pro (Powerful, Detailed)', id: 'gemini-1.5-pro' }
     ],
     openai: [
@@ -207,7 +209,7 @@ function setupEventListeners() {
         radio.addEventListener('change', (e) => {
             const provider = e.target.value;
             toggleProviderGroups(provider);
-            populateModels(provider, provider === 'gemini' ? 'gemini-1.5-flash' : 'gpt-4o-mini');
+            populateModels(provider, provider === 'gemini' ? 'gemini-3.5-flash' : 'gpt-4o-mini');
         });
     });
 

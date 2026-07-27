@@ -322,7 +322,7 @@ def render_app():
             api_key = st.text_input("Gemini API Key", type="password", 
                                     value=os.getenv("GEMINI_API_KEY", ""),
                                     placeholder="Paste APIzaSy...")
-            model_name = st.selectbox("Model", ["gemini-1.5-flash", "gemini-1.5-pro"])
+            model_name = st.selectbox("Model", ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-1.5-flash", "gemini-1.5-pro"])
         else:
             api_key = st.text_input("OpenAI API Key", type="password", 
                                     value=os.getenv("OPENAI_API_KEY", ""),
