@@ -24,7 +24,7 @@ def run():
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
         print(f"==================================================")
-        print(f"  AI Document Analyzer Agent local server running")
+        print(f"  Quickruit Doc Analyzer local server running")
         print(f"  URL: http://localhost:{PORT}")
         print(f"  Directory: {DIRECTORY}")
         print(f"  Press Ctrl+C to stop")

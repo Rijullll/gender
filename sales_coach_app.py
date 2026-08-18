@@ -381,6 +381,56 @@ def call_gemini_api(api_key, system_prompt, prompt, model="gemini-1.5-flash"):
         st.error(f"Failed to connect to the model: {str(e)}")
         return None
 
+# Groq API Caller
+def call_groq_api(api_key, system_prompt, prompt, model="llama-3.3-70b-versatile"):
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 2048
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            res_data = response.json()
+            return res_data["choices"][0]["message"]["content"]
+        else:
+            try:
+                err_json = response.json()
+                err_msg = err_json.get("error", {}).get("message", response.text)
+            except:
+                err_msg = response.text
+                
+            if response.status_code == 400:
+                st.error(f"⚠️ **Bad Request (400):** {err_msg}\n\n*Tip: The model you selected may not be supported on Groq, or your input parameters are incorrect.*")
+            elif response.status_code == 401:
+                st.error(f"⚠️ **Invalid API Key (401):** {err_msg}\n\n*Tip: Please check for spelling mistakes, spaces, or restrictions on your Groq API key.*")
+            elif response.status_code == 429:
+                st.error(f"⚠️ **Rate Limit Exceeded (429):** {err_msg}\n\n*Tip: Groq rate limits are active. Wait a few seconds and try again.*")
+            else:
+                st.error(f"⚠️ **Groq API Error ({response.status_code}):** {err_msg}")
+            return None
+    except Exception as e:
+        st.error(f"Failed to connect to Groq: {str(e)}")
+        return None
+
+# General API Router
+def call_coach_api(api_key, system_prompt, prompt, provider, model):
+    if provider == "Google Gemini":
+        return call_gemini_api(api_key, system_prompt, prompt, model)
+    elif provider == "Groq":
+        return call_groq_api(api_key, system_prompt, prompt, model)
+    return None
+
 # Parse Structured response
 def parse_coach_response(text):
     sections = {
@@ -442,33 +492,56 @@ st.markdown('<div class="subtitle">15+ Years of Expert B2B & B2C Sales Objection
 with st.sidebar:
     st.markdown("### ⚙️ Coach Settings")
     
-    # API Key handling
-    env_key = os.getenv("GEMINI_API_KEY", "")
-    api_key_input = st.text_input(
-        "Gemini API Key",
-        value=env_key,
-        type="password",
-        placeholder="AIzaSy..."
+    provider_option = st.selectbox(
+        "API Provider",
+        ["Google Gemini", "Groq"],
+        index=0
     )
     
+    if provider_option == "Google Gemini":
+        env_key = os.getenv("GEMINI_API_KEY", "")
+        api_key_input = st.text_input(
+            "Gemini API Key",
+            value=env_key,
+            type="password",
+            placeholder="AIzaSy..."
+        )
+        model_option = st.selectbox(
+            "AI Coaching Model",
+            [
+                "gemini-3.5-flash",
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-pro",
+                "gemini-2.5-flash",
+                "gemini-2.0-flash",
+                "gemini-1.5-flash",
+                "gemini-1.5-pro"
+            ],
+            index=5  # Default to gemini-1.5-flash as the most robust free fallback
+        )
+    else:
+        env_key = os.getenv("GROQ_API_KEY", "")
+        api_key_input = st.text_input(
+            "Groq API Key",
+            value=env_key,
+            type="password",
+            placeholder="gsk_..."
+        )
+        model_option = st.selectbox(
+            "AI Coaching Model",
+            [
+                "llama-3.3-70b-versatile",
+                "llama-3.1-8b-instant",
+                "mixtral-8x7b-32768",
+                "gemma2-9b-it"
+            ],
+            index=0
+        )
+        
     if api_key_input:
-        st.success("🔑 API Key configured successfully!")
+        st.success(f"🔑 {provider_option} Key configured!")
     else:
         st.warning("⚠️ Using DEMO mode with mock analysis. Enter an API key to test custom objections.")
-
-    model_option = st.selectbox(
-        "AI Coaching Model",
-        [
-            "gemini-3.5-flash",
-            "gemini-3.5-flash-lite",
-            "gemini-3.1-pro",
-            "gemini-2.5-flash",
-            "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro"
-        ],
-        index=5  # Default to gemini-1.5-flash as the most robust free fallback
-    )
     
     st.divider()
     
@@ -597,7 +670,7 @@ with tab_coach:
                     st.toast("Loaded pre-computed coach analysis in DEMO mode!")
                 else:
                     if not api_key_input:
-                        st.error("⚠️ Gemini API Key is required for analyzing custom inputs. Please enter your key in the sidebar.")
+                        st.error(f"⚠️ {provider_option} API Key is required for analyzing custom inputs. Please enter your key in the sidebar.")
                     else:
                         # Call API
                         system_instructions = """
@@ -644,7 +717,7 @@ with tab_coach:
                         - Context: {context_input if context_input else 'None provided'}
                         """
                         
-                        raw_text = call_gemini_api(api_key_input, system_instructions, prompt, model_option)
+                        raw_text = call_coach_api(api_key_input, system_instructions, prompt, provider_option, model_option)
                         if raw_text:
                             st.session_state.analysis_results = parse_coach_response(raw_text)
                             st.toast("Coach Analysis Generated!")
@@ -768,7 +841,7 @@ with tab_simulator:
         
         # Check if we have an API Key for chat
         if not api_key_input:
-            st.warning("⚠️ Practice simulator is disabled in DEMO mode because it requires live conversational AI. Enter your Gemini API Key in the sidebar to begin roleplaying!")
+            st.warning(f"⚠️ Practice simulator is disabled in DEMO mode because it requires live conversational AI. Enter your {provider_option} API Key in the sidebar to begin roleplaying!")
         else:
             # Set up introductory customer prompt if chat is empty
             if not st.session_state.chat_history:
@@ -818,7 +891,7 @@ with tab_simulator:
                 history_prompt += "Assistant (Customer + Coach feedback):"
                 
                 with st.spinner("Customer is thinking of their reply..."):
-                    reply = call_gemini_api(api_key_input, sim_system, history_prompt, model_option)
+                    reply = call_coach_api(api_key_input, sim_system, history_prompt, provider_option, model_option)
                     if reply:
                         st.session_state.chat_history.append({"role": "assistant", "content": reply})
                         st.rerun()

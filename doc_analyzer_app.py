@@ -19,7 +19,7 @@ except ImportError:
 
 # Set Streamlit Page Configuration
 st.set_page_config(
-    page_title="DocMind AI - Streamlit Document Analyzer",
+    page_title="Quickruit Doc Analyzer - Streamlit",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -147,7 +147,7 @@ if 'active_doc_id' not in st.session_state:
 if 'chat_histories' not in st.session_state:
     st.session_state.chat_histories = {
         'global': [
-            {"role": "assistant", "content": "Hello! I am your DocMind AI Assistant. Upload documents to get started. I will perform OCR and auto-analyze their content, then answer any questions you have!"}
+            {"role": "assistant", "content": "Hello! I am your Quickruit Doc Analyzer Assistant. Upload documents to get started. I will perform OCR and auto-analyze their content, then answer any questions you have!"}
         ]
     }
 
@@ -155,7 +155,7 @@ if 'chat_histories' not in st.session_state:
 def render_login():
     st.markdown('<div class="login-container">', unsafe_allow_html=True)
     st.markdown('<div class="login-logo">🧠</div>', unsafe_allow_html=True)
-    st.markdown('<h2>DocMind AI</h2>', unsafe_allow_html=True)
+    st.markdown('<h2>Quickruit Doc Analyzer</h2>', unsafe_allow_html=True)
     st.markdown('<p style="color: #94a3b8; margin-bottom: 24px;">AI Document Analyzer Agent Portal</p>', unsafe_allow_html=True)
     
     with st.form("login_form"):
@@ -301,7 +301,7 @@ def run_ocr_and_analysis(file_id, file_name, file_type, file_bytes, api_key, pro
 def render_app():
     # SIDEBAR SETUP
     with st.sidebar:
-        st.markdown('<div class="brand"><h3>🧠 DocMind AI Portal</h3></div>', unsafe_allow_html=True)
+        st.markdown('<div class="brand"><h3>🧠 Quickruit Doc Analyzer Portal</h3></div>', unsafe_allow_html=True)
         st.write("")
         
         # Logout button
@@ -394,7 +394,7 @@ def render_app():
                 st.rerun()
 
     # MAIN SCREEN
-    st.markdown('<h1 class="main-title">DocMind AI</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Quickruit Doc Analyzer</h1>', unsafe_allow_html=True)
     st.markdown('<p class="tagline">Explore, edit, OCR, and converse with your documents side-by-side.</p>', unsafe_allow_html=True)
 
     # Empty State Uploader (highly visible in main panel when no documents exist)

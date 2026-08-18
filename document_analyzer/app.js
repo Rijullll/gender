@@ -1,5 +1,5 @@
 /* ==========================================
-   DOCMIND AI APPLICATION LOGIC (app.js)
+   QUICKRUIT DOC ANALYZER APPLICATION LOGIC (app.js)
    ========================================== */
 
 // Configure PDF.js Worker
@@ -56,7 +56,7 @@ const modelConfigs = {
 
 // Initialize settings from localStorage on load
 function loadSettings() {
-    const saved = localStorage.getItem('docmind_settings');
+    const saved = localStorage.getItem('quickruit_doc_analyzer_settings') || localStorage.getItem('docmind_settings');
     if (saved) {
         try {
             state.settings = { ...state.settings, ...JSON.parse(saved) };
@@ -67,7 +67,7 @@ function loadSettings() {
 }
 
 function saveSettings() {
-    localStorage.setItem('docmind_settings', JSON.stringify(state.settings));
+    localStorage.setItem('quickruit_doc_analyzer_settings', JSON.stringify(state.settings));
 }
 
 // --- DOM ELEMENTS ---
@@ -1670,7 +1670,7 @@ function exportChatHistoryAsPDF() {
     // Title
     doc.setFont('Helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text('DocMind AI - Conversation Export', margin, y);
+    doc.text('Quickruit Doc Analyzer - Conversation Export', margin, y);
     y += 10;
     
     doc.setFont('Helvetica', 'normal');
@@ -1713,7 +1713,7 @@ function exportChatHistoryAsPDF() {
         y += 8; // spacing between bubbles
     });
     
-    doc.save(`docmind_chat_${Date.now()}.pdf`);
+    doc.save(`quickruit_chat_${Date.now()}.pdf`);
     addToast('PDF downloaded successfully!', 'success');
 }
 
