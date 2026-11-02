@@ -14,10 +14,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- MODERN SAAS LIGHT THEME & STYLING ---
+# --- MODERN ENTERPRISE SAAS DESIGN SYSTEM ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
     /* Global Base */
     html, body, [class*="css"] {
@@ -25,68 +25,95 @@ st.markdown("""
     }
     
     .stApp {
-        background-color: #F8FAFC;
+        background: radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.04) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.04) 0px, transparent 50%),
+                    #F8FAFC;
         color: #0F172A;
     }
     
     h1, h2, h3, h4, h5, h6 {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         color: #0F172A;
         font-weight: 700;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
     }
 
-    /* Modern SaaS Hero Banner */
-    .saas-hero {
-        background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
-        border-radius: 20px;
-        padding: 42px 40px;
+    /* Gradient Typography */
+    .text-gradient {
+        background: linear-gradient(135deg, #0F172A 0%, #4F46E5 50%, #06B6D4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Ambient Landing Hero Banner */
+    .landing-hero {
+        background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 45%, #312E81 100%);
+        border-radius: 24px;
+        padding: 56px 48px;
         color: white;
-        margin-bottom: 28px;
-        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.25), 0 8px 10px -6px rgba(79, 70, 229, 0.15);
+        margin-bottom: 32px;
+        box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.35);
         position: relative;
         overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.12);
     }
     
-    .saas-hero h1 {
-        color: white;
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-    }
-    
-    .saas-hero p {
-        color: #E0E7FF;
-        font-size: 1.15rem;
-        max-width: 680px;
-        line-height: 1.6;
-        margin-bottom: 20px;
+    .landing-hero::before {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 240px;
+        height: 240px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
     }
 
-    /* Clean Card System */
+    .landing-hero h1 {
+        color: white;
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 14px;
+        letter-spacing: -0.03em;
+    }
+    
+    .landing-hero p {
+        color: #E2E8F0;
+        font-size: 1.2rem;
+        max-width: 680px;
+        line-height: 1.6;
+        margin-bottom: 26px;
+    }
+
+    /* Modern Card System */
     .saas-card {
         background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 16px;
         padding: 24px;
         margin-bottom: 20px;
-        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.03), 0 2px 4px -2px rgba(15, 23, 42, 0.02);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
     }
     
     .saas-card:hover {
+        transform: translateY(-2px);
         border-color: #CBD5E1;
-        box-shadow: 0 6px 20px -4px rgba(15, 23, 42, 0.08);
+        box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
     }
     
     .saas-card-accent {
         border-left: 4px solid #4F46E5;
     }
 
-    /* Badges */
+    /* Badges & Chips */
     .badge {
         display: inline-flex;
         align-items: center;
+        gap: 6px;
         padding: 4px 10px;
         border-radius: 9999px;
         font-size: 0.75rem;
@@ -95,34 +122,86 @@ st.markdown("""
         text-transform: uppercase;
     }
     
-    .badge-indigo { background-color: #EEF2FF; color: #4338CA; border: 1px solid #E0E7FF; }
-    .badge-emerald { background-color: #ECFDF5; color: #047857; border: 1px solid #D1FAE5; }
-    .badge-amber { background-color: #FFFBEB; color: #B45309; border: 1px solid #FEF3C7; }
-    .badge-blue { background-color: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
-    .badge-rose { background-color: #FFF1F2; color: #BE123C; border: 1px solid #FFE4E6; }
+    .badge-indigo { background: #EEF2FF; color: #4338CA; border: 1px solid #E0E7FF; }
+    .badge-emerald { background: #ECFDF5; color: #047857; border: 1px solid #D1FAE5; }
+    .badge-amber { background: #FFFBEB; color: #B45309; border: 1px solid #FEF3C7; }
+    .badge-blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #DBEAFE; }
+    .badge-rose { background: #FFF1F2; color: #BE123C; border: 1px solid #FFE4E6; }
+    .badge-purple { background: #FAF5FF; color: #7E22CE; border: 1px solid #F3E8FF; }
+
+    /* Framework Pill Strip */
+    .framework-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    /* Sidebar Custom Widgets */
+    .user-streak-card {
+        background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+        border: 1px solid #C7D2FE;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+    
+    .active-engine-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .pulsing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #10B981;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulse 1.8s infinite;
+        display: inline-block;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
 
     /* Metric & Stat Cards */
     .stat-box {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 18px 20px;
+        border-radius: 14px;
+        padding: 20px;
         text-align: left;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
     
     .stat-label {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         color: #64748B;
-        font-weight: 500;
-        margin-bottom: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 6px;
     }
     
     .stat-value {
-        font-size: 1.85rem;
+        font-size: 2rem;
         font-weight: 800;
         color: #0F172A;
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     /* Script & Response Display */
@@ -130,10 +209,10 @@ st.markdown("""
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-left: 4px solid #4F46E5;
-        border-radius: 8px;
-        padding: 18px 20px;
+        border-radius: 10px;
+        padding: 20px 22px;
         font-size: 1.05rem;
-        line-height: 1.65;
+        line-height: 1.7;
         color: #1E293B;
         margin: 12px 0;
     }
@@ -142,53 +221,48 @@ st.markdown("""
     .chat-bubble-customer {
         background: #F1F5F9;
         border: 1px solid #E2E8F0;
-        border-radius: 14px 14px 14px 2px;
-        padding: 14px 18px;
+        border-radius: 16px 16px 16px 4px;
+        padding: 16px 20px;
         margin-bottom: 14px;
         color: #0F172A;
-        line-height: 1.5;
+        line-height: 1.55;
     }
     
     .chat-bubble-user {
         background: #EEF2FF;
         border: 1px solid #C7D2FE;
-        border-radius: 14px 14px 2px 14px;
-        padding: 14px 18px;
+        border-radius: 16px 16px 4px 16px;
+        padding: 16px 20px;
         margin-bottom: 14px;
         color: #312E81;
-        line-height: 1.5;
+        line-height: 1.55;
+    }
+
+    /* Persona Badge */
+    .persona-badge {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 18px 22px;
+        margin-bottom: 22px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
 
     /* Streamlit UI Button Overrides */
     div.stButton > button {
-        border-radius: 8px;
+        border-radius: 10px;
         font-weight: 600;
         font-size: 0.95rem;
-        padding: 0.55rem 1.25rem;
-        transition: all 0.15s ease-in-out;
+        padding: 0.6rem 1.35rem;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     div.stButton > button:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-    }
-    
-    /* Persona Card */
-    .persona-badge {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 20px;
-    }
-
-    /* Subtle divider */
-    hr {
-        border-color: #E2E8F0;
-        margin: 24px 0;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.2);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -462,7 +536,7 @@ These phrases offer zero value and put all the cognitive burden on the prospect.
 
 # --- SESSION STATE INITIALIZATION ---
 if "page" not in st.session_state:
-    st.session_state.page = "Dashboard"
+    st.session_state.page = "Landing"
 
 if "practice_mode" not in st.session_state:
     st.session_state.practice_mode = "Objection Coach"
@@ -499,6 +573,8 @@ if "coaching_response" not in st.session_state:
     st.session_state.coaching_response = None
 
 # Simulator States
+if "sim_scenario_source" not in st.session_state:
+    st.session_state.sim_scenario_source = "Library"
 if "sim_scenario" not in st.session_state:
     st.session_state.sim_scenario = "saas_crm_migration"
 if "sim_difficulty" not in st.session_state:
@@ -514,12 +590,36 @@ if "sim_report" not in st.session_state:
 if "confirm_end_sim" not in st.session_state:
     st.session_state.confirm_end_sim = False
 
+# Custom Scenarios Storage
+if "custom_scenarios" not in st.session_state:
+    st.session_state.custom_scenarios = {}
+if "active_custom_scenario" not in st.session_state:
+    st.session_state.active_custom_scenario = None
+
+# Custom Scenario Inputs
+if "cust_prod" not in st.session_state:
+    st.session_state.cust_prod = ""
+if "cust_ind" not in st.session_state:
+    st.session_state.cust_ind = ""
+if "cust_price" not in st.session_state:
+    st.session_state.cust_price = ""
+if "cust_name" not in st.session_state:
+    st.session_state.cust_name = ""
+if "cust_role" not in st.session_state:
+    st.session_state.cust_role = ""
+if "cust_trait" not in st.session_state:
+    st.session_state.cust_trait = "Skeptical & analytical"
+if "cust_obj" not in st.session_state:
+    st.session_state.cust_obj = ""
+if "cust_goal" not in st.session_state:
+    st.session_state.cust_goal = ""
+
 # Performance History
 if "practice_history" not in st.session_state:
     st.session_state.practice_history = []
 
 # --- API HELPER FUNCTIONS ---
-def call_gemini_api(api_key, system_prompt, prompt, model="gemini-1.5-flash"):
+def call_gemini_api(api_key, system_prompt, prompt, model="gemini-3.5-flash"):
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
@@ -623,7 +723,6 @@ def parse_coaching_response(text):
             else:
                 data[key] = content
                 
-    # Fallbacks if raw headers didn't match cleanly
     if not data["response"] and len(text) > 50:
         data["response"] = text[:600]
     if not data["understand"]:
@@ -648,21 +747,36 @@ def generate_mock_coaching(product, customer, objection, price=""):
         "raw": "Mock Demo Response Generated"
     }
 
-# --- NAVIGATION SIDEBAR ---
+# --- IMPRESSIVE SIDEBAR NAVIGATION ---
 with st.sidebar:
-    # Logo & Brand Header
+    # Sleek Brand Banner
     st.markdown("""
-    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-        <div style="background: #4F46E5; color: white; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 22px;">
+        <div style="background: linear-gradient(135deg, #4F46E5 0%, #06B6D4 100%); color: white; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);">
             🎯
         </div>
         <div>
-            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: #0F172A;">AI Sales Coach</h3>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748B; font-weight: 500;">Practice Smarter. Sell Better.</p>
+            <h3 style="margin: 0; font-size: 1.3rem; font-weight: 800; color: #0F172A; letter-spacing: -0.02em;">AI Sales Coach</h3>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Enterprise Edition</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
+    # Rep Mastery Widget
+    history_len = len(st.session_state.practice_history)
+    rank = "Master Closer" if history_len >= 5 else ("Advancing Closer" if history_len >= 2 else "Apprentice Closer")
+    streak_days = min(7, history_len + 1)
+    
+    st.markdown(f"""
+    <div class="user-streak-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.78rem; font-weight: 800; color: #4338CA; text-transform: uppercase;">🏆 {rank}</span>
+            <span style="font-size: 0.8rem; font-weight: 800; color: #EA580C;">🔥 {streak_days} Days Streak</span>
+        </div>
+        <div style="font-size: 0.74rem; color: #64748B; margin-top: 4px;">{history_len} sessions completed • SPIN Certified</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # Navigation Buttons
     pages = [
         ("Dashboard", "🏠"),
@@ -682,16 +796,35 @@ with st.sidebar:
             
     st.divider()
     
-    # Quick Status Badge
+    # Active AI Engine Card
     active_key = st.session_state.gemini_api_key if st.session_state.api_provider == "Google Gemini" else st.session_state.groq_api_key
+    active_model = st.session_state.gemini_model if st.session_state.api_provider == "Google Gemini" else st.session_state.groq_model
+    
     if active_key:
-        st.markdown(f'<span class="badge badge-emerald">🟢 {st.session_state.api_provider} Active</span>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="active-engine-card">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="pulsing-dot"></span>
+                <span style="font-weight: 700; font-size: 0.82rem; color: #0F172A;">{st.session_state.api_provider} Active</span>
+            </div>
+            <div style="font-size: 0.74rem; color: #64748B; margin-top: 4px;">
+                Model: <span class="badge badge-indigo" style="font-size: 0.68rem; padding: 2px 6px;">{active_model}</span>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     else:
-        st.markdown('<span class="badge badge-amber">⚪ Demo Mode Active</span>', unsafe_allow_html=True)
-        st.caption("Add an API key in **Settings** for live generative practice, or test using preloaded scenarios.")
+        st.markdown("""
+        <div class="active-engine-card">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 14px;">⚪</span>
+                <span style="font-weight: 700; font-size: 0.82rem; color: #B45309;">Demo Mode Active</span>
+            </div>
+            <div style="font-size: 0.74rem; color: #64748B; margin-top: 4px;">Full features unlocked via preloaded scenarios.</div>
+        </div>
+        """, unsafe_allow_html=True)
         
     st.write("")
-    if st.button("🌐 View Landing Page", use_container_width=True):
+    if st.button("🌐 Explore Landing Page", use_container_width=True):
         st.session_state.page = "Landing"
         st.rerun()
 
@@ -700,14 +833,16 @@ with st.sidebar:
 # ==========================================
 
 # ------------------------------------------
-# 1. LANDING PAGE
+# 1. IMPRESSIVE LANDING PAGE
 # ------------------------------------------
 if st.session_state.page == "Landing":
     st.markdown("""
-    <div class="saas-hero">
-        <span class="badge badge-indigo" style="background: rgba(255,255,255,0.2); color: white; border: none; margin-bottom: 12px;">Next-Gen Sales Enablement</span>
-        <h1>Practice Smarter. Sell Better.</h1>
-        <p>Master objection handling, refine your pitch, and close deals with confidence. Experience interactive, high-stakes sales roleplays with real-time AI critique tailored to your exact industry.</p>
+    <div class="landing-hero">
+        <span class="badge" style="background: rgba(255,255,255,0.18); color: white; border: 1px solid rgba(255,255,255,0.25); margin-bottom: 16px; font-size: 0.78rem;">
+            ✨ AI-POWERED SALES ENABLEMENT 2.0
+        </span>
+        <h1>Turn Tough Customer Objections<br/>into Closed Deals.</h1>
+        <p>Master objection handling, refine consultative discovery, and negotiate with unwavering confidence. Roleplay against adaptive AI buyer personas that react dynamically to your tone, methodology, and closing tactics.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -717,92 +852,116 @@ if st.session_state.page == "Landing":
             st.session_state.page = "Dashboard"
             st.rerun()
     with col_c2:
-        if st.button("🎯 Start Objection Coach", use_container_width=True):
+        if st.button("🛡️ Handle an Objection", use_container_width=True):
             st.session_state.page = "Practice"
             st.session_state.practice_mode = "Objection Coach"
             st.rerun()
     with col_c3:
-        if st.button("📚 Browse Scenario Library", use_container_width=True):
-            st.session_state.page = "Scenario Library"
+        if st.button("🎭 Launch Live Roleplay", use_container_width=True):
+            st.session_state.page = "Practice"
+            st.session_state.practice_mode = "Live Pitch Simulator"
             st.rerun()
 
     st.write("")
-    st.subheader("💡 How It Works")
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown("""
-        <div class="saas-card">
-            <span class="badge badge-blue">Step 1</span>
-            <h4 style="margin-top: 10px;">Choose a Scenario</h4>
-            <p style="color: #64748B; font-size: 0.95rem;">Select from our curated B2B and B2C scenario library or input your exact prospect objection, product details, and target buyer persona.</p>
+    # Methodology Strip
+    st.markdown("""
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: center; margin: 24px 0 36px 0;">
+        <span style="font-size: 0.85rem; color: #64748B; font-weight: 600; text-transform: uppercase;">Frameworks Embedded:</span>
+        <span class="framework-chip">🎯 SPIN Selling®</span>
+        <span class="framework-chip">⚡ The Challenger Sale®</span>
+        <span class="framework-chip">🤝 Consultative Discovery</span>
+        <span class="framework-chip">💼 Value-Based Closing</span>
+        <span class="framework-chip">📈 MEDDPICC Alignment</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Interactive Live Teaser Card
+    st.markdown("""
+    <div class="saas-card" style="border: 1px solid #C7D2FE; background: #FFFFFF; padding: 28px; margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge badge-rose">Live Scenario Preview</span>
+                <span style="font-size: 0.85rem; color: #64748B;">B2B Enterprise SaaS • Negotiation Stage</span>
+            </div>
+            <span class="badge badge-emerald">Estimated Win Probability: 84%</span>
         </div>
-        """, unsafe_allow_html=True)
-    with c2:
-        st.markdown("""
-        <div class="saas-card">
-            <span class="badge badge-indigo">Step 2</span>
-            <h4 style="margin-top: 10px;">Practise with AI</h4>
-            <p style="color: #64748B; font-size: 0.95rem;">Roleplay in a live conversational simulation against an AI prospect who reacts to your tone, empathy, discovery questions, and closing tactics.</p>
+        <div style="background: #F8FAFC; border-left: 4px solid #EF4444; border-radius: 8px; padding: 14px 18px; margin-bottom: 14px; font-size: 0.95rem; color: #1E293B;">
+            <strong>Prospect:</strong> "Your competitor is offering 40% cheaper annual licensing. We like your tool, but our CFO won't approve this price delta."
         </div>
-        """, unsafe_allow_html=True)
-    with c3:
-        st.markdown("""
-        <div class="saas-card">
-            <span class="badge badge-emerald">Step 3</span>
-            <h4 style="margin-top: 10px;">Receive Instant Coaching</h4>
-            <p style="color: #64748B; font-size: 0.95rem;">Get comprehensive analytics, psychographic objection breakdowns, better verbatim responses, and a quantitative score out of 100.</p>
+        <div style="background: #EEF2FF; border-left: 4px solid #4F46E5; border-radius: 8px; padding: 14px 18px; font-size: 0.95rem; color: #312E81;">
+            <strong>AI Coach Verbatim Script:</strong> "I completely respect that—every CFO's mandate is capital discipline. But let me ask you: if their tool saves $10k on software yet costs 30 hours of manual work every month, which solution actually protects your bottom line? Let's run a 1-page TCO comparison together."
         </div>
-        """, unsafe_allow_html=True)
-        
-    st.subheader("⚡ Core Features Built for High-Performance Teams")
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4-Pillar Capability Grid
+    st.subheader("⚡ Built for Top 1% Revenue Generators")
     f1, f2 = st.columns(2)
     with f1:
         st.markdown("""
-        <div class="saas-card saas-card-accent">
-            <h4>🛡️ Tactical Objection Coach</h4>
-            <p style="color: #64748B;">Instantly analyze tough objections like price, timing, competitor lock-in, and feature gaps. Get proven scripts backed by SPIN Selling and the Challenger Sale.</p>
+        <div class="saas-card saas-card-accent" style="height: 100%;">
+            <span class="badge badge-indigo" style="margin-bottom: 10px;">Sub-Second Intelligence</span>
+            <h3 style="margin: 0 0 8px 0;">Tactical Objection Deconstruction</h3>
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                Uncover what prospects are *actually* afraid of. Get psychographic root-cause analysis, verbatim scripts, and discovery questions that turn defensive prospects into buyers.
+            </p>
         </div>
         """, unsafe_allow_html=True)
     with f2:
         st.markdown("""
-        <div class="saas-card saas-card-accent">
-            <h4>🎭 Live Pitch Roleplay Simulator</h4>
-            <p style="color: #64748B;">Step into realistic customer dialogues across Beginner, Intermediate, and Advanced difficulty tiers. Build muscle memory before talking to real prospects.</p>
+        <div class="saas-card saas-card-accent" style="height: 100%;">
+            <span class="badge badge-purple" style="margin-bottom: 10px;">Conversational AI</span>
+            <h3 style="margin: 0 0 8px 0;">Adaptive Live Pitch Simulator</h3>
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                Practice against realistic AI buyers with customizable difficulty tiers. Build muscle memory for high-stakes calls, or build your own custom pipeline scenarios.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    f3, f4 = st.columns(2)
+    with f3:
+        st.markdown("""
+        <div class="saas-card saas-card-accent" style="height: 100%;">
+            <span class="badge badge-emerald" style="margin-bottom: 10px;">Performance Radar</span>
+            <h3 style="margin: 0 0 8px 0;">5-Axis Performance Scorecards</h3>
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                Quantify your skills across Communication, Discovery, Objection Handling, Product Knowledge, and Closing. Receive actionable feedback on every single practice turn.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    with f4:
+        st.markdown("""
+        <div class="saas-card saas-card-accent" style="height: 100%;">
+            <span class="badge badge-blue" style="margin-bottom: 10px;">Custom Pipeline Engine</span>
+            <h3 style="margin: 0 0 8px 0;">Practice Your Actual Live Deals</h3>
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.6;">
+                Don't just roleplay generic cases. Input your real prospect's name, role, objections, and price point to prepare for your actual meeting tomorrow.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
 # ------------------------------------------
-# 2. DASHBOARD
+# 2. USER DASHBOARD
 # ------------------------------------------
 elif st.session_state.page == "Dashboard":
     st.markdown("""
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px;">
         <div>
-            <h1 style="margin: 0; font-size: 2.2rem;">Welcome to AI Sales Coach 👋</h1>
-            <p style="margin: 4px 0 0 0; color: #64748B; font-size: 1.05rem;">Your personal AI sales mentor for mastering objections, pitch practice, and deal closing.</p>
+            <h1 style="margin: 0; font-size: 2.3rem;">Welcome to AI Sales Coach 👋</h1>
+            <p style="margin: 6px 0 0 0; color: #64748B; font-size: 1.05rem;">Master objections, practice high-stakes calls, and track your closing competency.</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # Action CTA Banner
-    st.markdown("""
-    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-        <div>
-            <h4 style="margin: 0 0 4px 0;">Ready to sharpen your pitch today?</h4>
-            <p style="margin: 0; color: #64748B; font-size: 0.9rem;">Choose a scenario or handle an upcoming customer pushback.</p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # 2 Big Feature Cards
+    # 2 Feature Action Launchers
     fc1, fc2 = st.columns(2)
     with fc1:
         st.markdown("""
         <div class="saas-card saas-card-accent" style="height: 100%;">
-            <div style="font-size: 28px; margin-bottom: 8px;">🛡️</div>
+            <div style="font-size: 32px; margin-bottom: 10px;">🛡️</div>
             <h3 style="margin: 0 0 8px 0;">Handle Customer Objections</h3>
-            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px;">
-                Enter a tough objection from a real prospect. Get psychological analysis, natural verbal scripts, and strategic closing techniques in seconds.
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.55; margin-bottom: 16px;">
+                Enter a tough objection from a prospect. Get immediate psychological analysis, natural verbatim scripts, and strategic closing techniques.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -814,10 +973,10 @@ elif st.session_state.page == "Dashboard":
     with fc2:
         st.markdown("""
         <div class="saas-card saas-card-accent" style="height: 100%;">
-            <div style="font-size: 28px; margin-bottom: 8px;">🎭</div>
+            <div style="font-size: 32px; margin-bottom: 10px;">🎭</div>
             <h3 style="margin: 0 0 8px 0;">Practice Your Sales Pitch</h3>
-            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.5; margin-bottom: 16px;">
-                Roleplay against adaptive AI customer personas. Practice negotiation, handle pushbacks in real time, and receive an automated performance score.
+            <p style="color: #64748B; font-size: 0.95rem; line-height: 1.55; margin-bottom: 16px;">
+                Roleplay against adaptive AI buyer personas or build your own custom deal scenario. Practice live dialogues and receive an automated evaluation.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -830,6 +989,7 @@ elif st.session_state.page == "Dashboard":
     # Metrics Row
     history_count = len(st.session_state.practice_history)
     avg_score = int(sum([h.get("score", 0) for h in st.session_state.practice_history]) / history_count) if history_count > 0 else 0
+    total_scenarios = len(SCENARIOS) + len(st.session_state.custom_scenarios)
     
     m1, m2, m3, m4 = st.columns(4)
     with m1:
@@ -843,15 +1003,15 @@ elif st.session_state.page == "Dashboard":
         score_display = f"{avg_score}%" if history_count > 0 else "—"
         st.markdown(f"""
         <div class="stat-box">
-            <div class="stat-label">Overall Performance Score</div>
+            <div class="stat-label">Average Performance Score</div>
             <div class="stat-value" style="color: #4F46E5;">{score_display}</div>
         </div>
         """, unsafe_allow_html=True)
     with m3:
         st.markdown(f"""
         <div class="stat-box">
-            <div class="stat-label">Scenarios Available</div>
-            <div class="stat-value">{len(SCENARIOS)}</div>
+            <div class="stat-label">Available Scenarios</div>
+            <div class="stat-value">{total_scenarios}</div>
         </div>
         """, unsafe_allow_html=True)
     with m4:
@@ -863,17 +1023,16 @@ elif st.session_state.page == "Dashboard":
         """, unsafe_allow_html=True)
 
     st.write("")
-    # Recent Practice Sessions & Recommended Scenarios
     col_rec, col_sugg = st.columns([1.2, 0.8])
     with col_rec:
         st.subheader("⏱️ Recent Practice Sessions")
         if not st.session_state.practice_history:
             st.markdown("""
-            <div class="saas-card" style="text-align: center; padding: 36px 20px;">
-                <div style="font-size: 32px; margin-bottom: 10px;">📋</div>
-                <h4 style="margin: 0 0 6px 0; color: #475569;">No Practice Sessions Yet</h4>
+            <div class="saas-card" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 34px; margin-bottom: 10px;">📋</div>
+                <h4 style="margin: 0 0 6px 0; color: #475569;">No Practice Sessions Recorded</h4>
                 <p style="color: #94A3B8; font-size: 0.9rem; max-width: 400px; margin: 0 auto 16px auto;">
-                    Complete your first practice session to see your progress, scores, and performance analytics.
+                    Complete your first practice session in the Objection Coach or Live Simulator to see your progress and performance radar.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -907,6 +1066,7 @@ elif st.session_state.page == "Dashboard":
             </div>
             """, unsafe_allow_html=True)
             if st.button(f"Practise Scenario ➔", key=f"quick_sc_{sc_key}", use_container_width=True):
+                st.session_state.sim_scenario_source = "Library"
                 st.session_state.sim_scenario = sc_key
                 st.session_state.page = "Practice"
                 st.session_state.practice_mode = "Live Pitch Simulator"
@@ -923,12 +1083,11 @@ elif st.session_state.page == "Dashboard":
 elif st.session_state.page == "Practice":
     st.markdown("""
     <div style="margin-bottom: 20px;">
-        <h1 style="margin: 0; font-size: 2.2rem;">Sales Practice Studio</h1>
-        <p style="color: #64748B; margin: 4px 0 0 0;">Select your practice mode below to either formulate objection responses or roleplay live.</p>
+        <h1 style="margin: 0; font-size: 2.3rem;">Sales Practice Studio</h1>
+        <p style="color: #64748B; margin: 4px 0 0 0;">Sharpen your objection reflexes and roleplay high-stakes deals in a controlled AI environment.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Sub navigation tabs
     col_tab1, col_tab2 = st.columns(2)
     with col_tab1:
         if st.button("🛡️ Objection Coach", use_container_width=True, type="primary" if st.session_state.practice_mode == "Objection Coach" else "secondary"):
@@ -943,7 +1102,6 @@ elif st.session_state.page == "Practice":
 
     # --- SUB-MODE A: OBJECTION COACH ---
     if st.session_state.practice_mode == "Objection Coach":
-        # Quick Load Preset Selector
         with st.expander("⚡ Quick Load a Predefined Scenario", expanded=False):
             preset_options = {"Select a scenario...": None}
             for k, v in SCENARIOS.items():
@@ -960,35 +1118,33 @@ elif st.session_state.page == "Practice":
                 st.session_state.coach_context = sc_data["context"]
                 st.toast(f"Loaded scenario: {sc_data['title']}")
 
-        # 3-Step Guided Layout
-        st.markdown("### 📝 Objection Details")
+        st.markdown("### 📝 Objection Configuration")
         
         c_step1, c_step2 = st.columns(2)
         with c_step1:
             st.markdown("""
             <div class="saas-card">
                 <span class="badge badge-indigo" style="margin-bottom: 8px;">Step 1</span>
-                <h4 style="margin: 0 0 16px 0;">Product Information</h4>
+                <h4 style="margin: 0 0 16px 0;">Product Details</h4>
             </div>
             """, unsafe_allow_html=True)
             
-            p_name = st.text_input("Product or Service Name *", value=st.session_state.coach_product, placeholder="e.g. NextGen CRM SaaS, Cybersecurity Audit")
+            p_name = st.text_input("Product or Service Name *", value=st.session_state.coach_product, placeholder="e.g. NextGen CRM SaaS, Cyber Security Audit")
             p_ind = st.text_input("Industry", value=st.session_state.coach_industry, placeholder="e.g. Technology, Real Estate, Healthcare")
-            p_price = st.text_input("Price / Contract Value (Optional)", value=st.session_state.coach_price, placeholder="e.g. $120/mo, $25,000 flat, $450,000")
+            p_price = st.text_input("Price / Deal Size (Optional)", value=st.session_state.coach_price, placeholder="e.g. $120/mo, $25,000 flat, $450,000")
 
         with c_step2:
             st.markdown("""
             <div class="saas-card">
                 <span class="badge badge-blue" style="margin-bottom: 8px;">Step 2</span>
-                <h4 style="margin: 0 0 16px 0;">Customer Information</h4>
+                <h4 style="margin: 0 0 16px 0;">Customer Profile</h4>
             </div>
             """, unsafe_allow_html=True)
             
-            c_target = st.text_input("Target Customer *", value=st.session_state.coach_customer, placeholder="e.g. VP of Sales, CTO of fintech startup, First-time buyer")
+            c_target = st.text_input("Target Customer *", value=st.session_state.coach_customer, placeholder="e.g. VP of Sales, CTO of fintech startup, First-time homebuyer")
             c_obj = st.text_area("Customer Objection *", value=st.session_state.coach_objection, placeholder="e.g. Your price is 30% higher than competitor X; We don't have budget.", height=95)
             c_ctx = st.text_input("Additional Context (Optional)", value=st.session_state.coach_context, placeholder="e.g. They are raising Series A soon; currently renting.")
 
-        # Update session states
         st.session_state.coach_product = p_name
         st.session_state.coach_industry = p_ind
         st.session_state.coach_price = p_price
@@ -996,7 +1152,6 @@ elif st.session_state.page == "Practice":
         st.session_state.coach_objection = c_obj
         st.session_state.coach_context = c_ctx
 
-        # Action Buttons
         col_act1, col_act2, col_act3 = st.columns([1.5, 0.5, 1])
         with col_act1:
             gen_clicked = st.button("🧠 Generate Coaching Response", type="primary", use_container_width=True)
@@ -1011,13 +1166,11 @@ elif st.session_state.page == "Practice":
                 st.session_state.coaching_response = None
                 st.rerun()
 
-        # Handle Generation
         if gen_clicked:
             if not p_name or not c_target or not c_obj:
                 st.error("⚠️ Please fill in all required fields marked with an asterisk (*): Product Name, Target Customer, and Customer Objection.")
             else:
                 with st.spinner("Analyzing objection psychology and drafting expert coaching response..."):
-                    # Check for API call
                     sys_prompt = """
                     You are an expert executive Sales Coach with 15+ years in B2B and B2C sales.
                     Analyze the objection and respond in this exact Markdown structure:
@@ -1054,18 +1207,15 @@ elif st.session_state.page == "Practice":
                     if raw_out:
                         st.session_state.coaching_response = parse_coaching_response(raw_out)
                     else:
-                        # Demo Mode fallback
                         time.sleep(0.8)
                         st.session_state.coaching_response = generate_mock_coaching(p_name, c_target, c_obj, p_price)
                         st.toast("Coaching generated in Demo Mode!")
 
-        # Display Structured Coaching Results
         if st.session_state.coaching_response:
             resp = st.session_state.coaching_response
             st.markdown("---")
             st.markdown("### 🎯 Coaching Recommendations")
             
-            # Score Banner
             score = resp.get("score", 85)
             score_color = "#10B981" if score >= 75 else "#F59E0B"
             st.markdown(f"""
@@ -1074,13 +1224,12 @@ elif st.session_state.page == "Practice":
                     <h4 style="margin: 0; color: #0F172A;">Deal Closing Likelihood Score</h4>
                     <p style="margin: 0; color: #64748B; font-size: 0.85rem;">Based on objection severity and reframing leverage</p>
                 </div>
-                <div style="font-size: 2.2rem; font-weight: 800; color: {score_color}; font-family: 'Outfit';">
+                <div style="font-size: 2.2rem; font-weight: 800; color: {score_color}; font-family: 'Plus Jakarta Sans';">
                     {score}%
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Content Blocks
             st.markdown("""
             <div class="saas-card">
                 <h4 style="color: #0F172A; margin-bottom: 8px;">🔍 Understand the Objection</h4>
@@ -1122,11 +1271,25 @@ elif st.session_state.page == "Practice":
             </div>
             """.format(resp["closing"]), unsafe_allow_html=True)
             
-            # Action Buttons
             col_btn1, col_btn2, col_btn3, col_btn4 = st.columns(4)
             with col_btn1:
                 if st.button("🎭 Practise This Objection", use_container_width=True, type="primary"):
                     st.session_state.practice_mode = "Live Pitch Simulator"
+                    st.session_state.sim_scenario_source = "Custom"
+                    st.session_state.active_custom_scenario = {
+                        "title": f"Custom: {st.session_state.coach_product}",
+                        "product": st.session_state.coach_product,
+                        "industry": st.session_state.coach_industry or "General",
+                        "price": st.session_state.coach_price,
+                        "objection": st.session_state.coach_objection,
+                        "objective": "Address customer hesitation, reframe the cost of inaction, and book next meeting.",
+                        "persona": {
+                            "name": st.session_state.coach_customer.split()[0] if st.session_state.coach_customer else "Prospect",
+                            "role": st.session_state.coach_customer,
+                            "personality": "Pragmatic, cautious, protective of budget.",
+                            "main_concern": st.session_state.coach_objection
+                        }
+                    }
                     st.session_state.sim_in_progress = True
                     st.session_state.sim_messages = [{
                         "role": "assistant",
@@ -1150,53 +1313,189 @@ elif st.session_state.page == "Practice":
                     st.session_state.coaching_response = None
                     st.rerun()
 
-    # --- SUB-MODE B: LIVE PITCH SIMULATOR ---
+    # --- SUB-MODE B: LIVE PITCH SIMULATOR (WITH CUSTOM SCENARIO SUPPORT) ---
     elif st.session_state.practice_mode == "Live Pitch Simulator":
-        # Check if simulator is active or in setup
         if not st.session_state.sim_in_progress and not st.session_state.sim_report:
             st.markdown("### ⚙️ Simulator Setup")
             
-            col_s1, col_s2 = st.columns(2)
-            with col_s1:
-                sc_keys = list(SCENARIOS.keys())
-                sc_names = [f"{SCENARIOS[k]['title']} ({SCENARIOS[k]['category']} - {SCENARIOS[k]['industry']})" for k in sc_keys]
-                selected_idx = st.selectbox("Select Sales Scenario", range(len(sc_names)), format_func=lambda i: sc_names[i])
-                st.session_state.sim_scenario = sc_keys[selected_idx]
-                
-                diff = st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced"], value="Intermediate")
-                st.session_state.sim_difficulty = diff
+            # Mode Toggle: Scenario Library vs Create Custom Scenario
+            src_choice = st.radio(
+                "Scenario Source",
+                ["📚 Choose from Scenario Library", "✍️ Create Custom Scenario"],
+                horizontal=True,
+                index=0 if st.session_state.sim_scenario_source == "Library" else 1
+            )
+            st.session_state.sim_scenario_source = "Library" if "Library" in src_choice else "Custom"
+            
+            st.write("")
+            
+            # OPTION 1: LIBRARY SCENARIOS
+            if st.session_state.sim_scenario_source == "Library":
+                col_s1, col_s2 = st.columns(2)
+                with col_s1:
+                    sc_keys = list(SCENARIOS.keys())
+                    sc_names = [f"{SCENARIOS[k]['title']} ({SCENARIOS[k]['category']} - {SCENARIOS[k]['industry']})" for k in sc_keys]
+                    selected_idx = st.selectbox("Select Sales Scenario", range(len(sc_names)), format_func=lambda i: sc_names[i])
+                    st.session_state.sim_scenario = sc_keys[selected_idx]
+                    
+                    diff = st.select_slider("Difficulty Level", options=["Beginner", "Intermediate", "Advanced"], value=st.session_state.sim_difficulty)
+                    st.session_state.sim_difficulty = diff
 
-            with col_s2:
-                in_mode = st.radio("Practice Mode", ["Text Only", "Voice Input (Speech Recognition)"], index=0)
-                st.session_state.sim_input_mode = "Voice" if "Voice" in in_mode else "Text"
-                
-                active_sc = SCENARIOS[st.session_state.sim_scenario]
-                st.markdown(f"""
-                <div class="saas-card" style="margin-top: 15px;">
-                    <div style="font-weight: 700; color: #0F172A; margin-bottom: 4px;">Persona: {active_sc['persona']['name']} ({active_sc['persona']['role']})</div>
-                    <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 6px;">{active_sc['persona']['personality']}</div>
-                    <div style="font-size: 0.85rem; color: #DC2626;"><strong>Main Concern:</strong> {active_sc['persona']['main_concern']}</div>
+                with col_s2:
+                    in_mode = st.radio("Practice Mode", ["Text Only", "Voice Input (Speech Recognition)"], index=0)
+                    st.session_state.sim_input_mode = "Voice" if "Voice" in in_mode else "Text"
+                    
+                    active_sc = SCENARIOS[st.session_state.sim_scenario]
+                    st.markdown(f"""
+                    <div class="saas-card" style="margin-top: 15px;">
+                        <div style="font-weight: 700; color: #0F172A; margin-bottom: 4px;">Persona: {active_sc['persona']['name']} ({active_sc['persona']['role']})</div>
+                        <div style="font-size: 0.85rem; color: #64748B; margin-bottom: 6px;">{active_sc['persona']['personality']}</div>
+                        <div style="font-size: 0.85rem; color: #DC2626;"><strong>Main Concern:</strong> {active_sc['persona']['main_concern']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                if st.button("🚀 Start Live Simulation", type="primary", use_container_width=True):
+                    st.session_state.sim_in_progress = True
+                    active_sc = SCENARIOS[st.session_state.sim_scenario]
+                    st.session_state.active_custom_scenario = None
+                    st.session_state.sim_messages = [{
+                        "role": "assistant",
+                        "content": f"Hi. Thanks for taking the call. Look, we looked over your offer for {active_sc['product']}, but {active_sc['objection']} What can you do for us?"
+                    }]
+                    st.session_state.sim_report = None
+                    st.rerun()
+
+            # OPTION 2: CREATE CUSTOM SCENARIO
+            else:
+                st.markdown("""
+                <div class="saas-card saas-card-accent">
+                    <span class="badge badge-purple" style="margin-bottom: 6px;">Custom Pipeline Builder</span>
+                    <h4 style="margin: 0 0 6px 0;">Configure Your Own Prospect & Deal Scenario</h4>
+                    <p style="color: #64748B; font-size: 0.9rem; margin: 0;">Prepare for your actual sales calls by simulating your specific prospect's role, temperament, and exact objections.</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
-            if st.button("🚀 Start Live Simulation", type="primary", use_container_width=True):
-                st.session_state.sim_in_progress = True
-                active_sc = SCENARIOS[st.session_state.sim_scenario]
-                st.session_state.sim_messages = [{
-                    "role": "assistant",
-                    "content": f"Hi. Thanks for taking the call. Look, we looked over your offer for {active_sc['product']}, but {active_sc['objection']} What can you do for us?"
-                }]
-                st.session_state.sim_report = None
-                st.rerun()
+                # Check for previously saved custom scenarios
+                if st.session_state.custom_scenarios:
+                    saved_names = ["-- Create New Scenario --"] + list(st.session_state.custom_scenarios.keys())
+                    selected_saved = st.selectbox("Load a Previously Saved Custom Scenario:", saved_names)
+                    if selected_saved != "-- Create New Scenario --":
+                        saved_sc = st.session_state.custom_scenarios[selected_saved]
+                        st.session_state.cust_prod = saved_sc["product"]
+                        st.session_state.cust_ind = saved_sc["industry"]
+                        st.session_state.cust_price = saved_sc["price"]
+                        st.session_state.cust_name = saved_sc["persona"]["name"]
+                        st.session_state.cust_role = saved_sc["persona"]["role"]
+                        st.session_state.cust_trait = saved_sc["persona"]["personality"]
+                        st.session_state.cust_obj = saved_sc["objection"]
+                        st.session_state.cust_goal = saved_sc["objective"]
+
+                col_c1, col_c2 = st.columns(2)
+                with col_c1:
+                    cust_p = st.text_input("Product or Service *", value=st.session_state.cust_prod, placeholder="e.g. Solar Panel System, SEO Retainer, Enterprise Cloud Backup")
+                    cust_i = st.text_input("Industry *", value=st.session_state.cust_ind, placeholder="e.g. Clean Energy, E-Commerce, Logistics")
+                    cust_val = st.text_input("Deal Value / Price (Optional)", value=st.session_state.cust_price, placeholder="e.g. $18,000, $3,500/mo")
+                    diff_custom = st.select_slider("Difficulty Tier", options=["Beginner", "Intermediate", "Advanced"], value="Intermediate", key="diff_cust_slider")
+                    st.session_state.sim_difficulty = diff_custom
+
+                with col_c2:
+                    c_name = st.text_input("Prospect Full Name *", value=st.session_state.cust_name, placeholder="e.g. Robert Martinez, Dr. Linda Zhao")
+                    c_role = st.text_input("Prospect Job Title / Role *", value=st.session_state.cust_role, placeholder="e.g. Chief Operating Officer, Homeowner, Clinic Owner")
+                    c_trait = st.selectbox("Prospect Temperament", [
+                        "Skeptical & analytical (demands hard ROI data)",
+                        "Busy & impatient (hates small talk, wants the point)",
+                        "Polite but conflict-avoidant (gives soft 'maybe later' brush-offs)",
+                        "Aggressive cost-cutter (focuses strictly on discounts)"
+                    ], index=0)
+
+                col_c3, col_c4 = st.columns(2)
+                with col_c3:
+                    c_objection = st.text_area("Prospect's Core Objection / First Pushback *", value=st.session_state.cust_obj, placeholder="e.g. We had a bad experience with a contractor last year and won't commit without a written completion guarantee.", height=85)
+                with col_c4:
+                    c_goal = st.text_area("Your Sales Objective *", value=st.session_state.cust_goal, placeholder="e.g. Validate their timeline fear, share customer warranty cases, and book an on-site survey.", height=85)
+
+                st.session_state.cust_prod = cust_p
+                st.session_state.cust_ind = cust_i
+                st.session_state.cust_price = cust_val
+                st.session_state.cust_name = c_name
+                st.session_state.cust_role = c_role
+                st.session_state.cust_trait = c_trait
+                st.session_state.cust_obj = c_objection
+                st.session_state.cust_goal = c_goal
+
+                col_sub1, col_sub2 = st.columns([1.5, 1])
+                with col_sub1:
+                    if st.button("🚀 Start Custom Simulation", type="primary", use_container_width=True):
+                        if not cust_p or not c_name or not c_role or not c_objection or not c_goal:
+                            st.error("⚠️ Please fill in all required custom fields: Product, Prospect Name, Role, Core Objection, and Sales Objective.")
+                        else:
+                            custom_obj_data = {
+                                "title": f"Custom Deal: {cust_p}",
+                                "category": "Custom",
+                                "difficulty": diff_custom,
+                                "industry": cust_i or "General",
+                                "product": cust_p,
+                                "price": cust_val,
+                                "customer": f"{c_name} ({c_role})",
+                                "objection": c_objection,
+                                "objective": c_goal,
+                                "persona": {
+                                    "name": c_name,
+                                    "role": c_role,
+                                    "personality": c_trait,
+                                    "main_concern": c_objection
+                                }
+                            }
+                            st.session_state.active_custom_scenario = custom_obj_data
+                            # Save to user collection
+                            sc_save_name = f"{c_name} - {cust_p}"
+                            st.session_state.custom_scenarios[sc_save_name] = custom_obj_data
+                            
+                            st.session_state.sim_in_progress = True
+                            st.session_state.sim_messages = [{
+                                "role": "assistant",
+                                "content": f"Hi. Thanks for reaching out. Look, we looked over your offer for {cust_p}, but {c_objection} What can you say to that?"
+                            }]
+                            st.session_state.sim_report = None
+                            st.rerun()
+
+                with col_sub2:
+                    if st.button("💾 Save to My Custom Library", use_container_width=True):
+                        if cust_p and c_name:
+                            sc_save_name = f"{c_name} - {cust_p}"
+                            st.session_state.custom_scenarios[sc_save_name] = {
+                                "title": f"Custom Deal: {cust_p}",
+                                "category": "Custom",
+                                "difficulty": diff_custom,
+                                "industry": cust_i or "General",
+                                "product": cust_p,
+                                "price": cust_val,
+                                "customer": f"{c_name} ({c_role})",
+                                "objection": c_objection,
+                                "objective": c_goal,
+                                "persona": {
+                                    "name": c_name,
+                                    "role": c_role,
+                                    "personality": c_trait,
+                                    "main_concern": c_objection
+                                }
+                            }
+                            st.success(f"Saved '{sc_save_name}' to your custom library!")
+                        else:
+                            st.warning("Enter at least Product and Prospect Name to save.")
 
         # SIMULATOR IN PROGRESS
         elif st.session_state.sim_in_progress:
-            active_sc = SCENARIOS.get(st.session_state.sim_scenario, SCENARIOS["saas_crm_migration"])
+            # Resolve scenario data
+            if st.session_state.sim_scenario_source == "Custom" and st.session_state.active_custom_scenario:
+                active_sc = st.session_state.active_custom_scenario
+            else:
+                active_sc = SCENARIOS.get(st.session_state.sim_scenario, SCENARIOS["saas_crm_migration"])
             
             # Persistent Profile Header
             st.markdown(f"""
             <div class="persona-badge">
-                <div style="background: #EEF2FF; color: #4F46E5; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <div style="background: #EEF2FF; color: #4F46E5; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                     👤
                 </div>
                 <div style="flex: 1;">
@@ -1241,17 +1540,14 @@ elif st.session_state.page == "Practice":
                         </div>
                         """, unsafe_allow_html=True)
 
-            # Voice Input Option
             if st.session_state.sim_input_mode == "Voice":
                 st.caption("🎙️ Voice input enabled: Use standard speech recognition or microphone typing in your browser.")
                 
-            # Input Box
             user_msg = st.chat_input("Type your response to the customer...")
             
             if user_msg:
                 st.session_state.sim_messages.append({"role": "user", "content": user_msg})
                 
-                # Check for AI reply
                 difficulty_rules = {
                     "Beginner": "Be somewhat skeptical initially, but soften quickly if the salesperson validates your concerns and asks polite questions.",
                     "Intermediate": "Act like a typical pragmatic business leader. Push back on price and timing. Demand proof.",
@@ -1275,14 +1571,13 @@ elif st.session_state.page == "Practice":
                 with st.spinner(f"{active_sc['persona']['name']} is thinking..."):
                     reply = call_ai(sys_sim, prompt_hist)
                     if not reply:
-                        # Fallback Demo simulation responses
                         user_turn_count = len([m for m in st.session_state.sim_messages if m['role'] == 'user'])
                         if user_turn_count == 1:
-                            reply = "That sounds good in theory, but my team has heard software vendors promise 'smooth transitions' before. What happens if your engineers drop the ball midway through the quarter?"
+                            reply = "That sounds good in theory, but my team has heard software vendors promise smooth outcomes before. What guarantee do we have that your team won't drop the ball?"
                         elif user_turn_count == 2:
-                            reply = "Fair point on the productivity loss with our current setup. But how do you propose we structure the pricing so my CFO doesn't reject this immediately?"
+                            reply = "Fair point on the productivity risk. But how do you propose we structure the milestones so my leadership approves this without pushback?"
                         else:
-                            reply = "Alright, if you can put that migration warranty in writing and guarantee milestone payments, I'm open to seeing a 15-minute demo on Friday."
+                            reply = "Alright, if you can put that written warranty into the proposal and schedule an onboarding review, I'm open to a 20-minute meeting next Tuesday."
                             
                     st.session_state.sim_messages.append({"role": "assistant", "content": reply})
                     st.rerun()
@@ -1295,35 +1590,34 @@ elif st.session_state.page == "Practice":
                     st.session_state.confirm_end_sim = True
                     
             if st.session_state.confirm_end_sim:
-                st.warning("Are you sure you want to conclude this practice session and view your performance report?")
+                st.warning("Are you sure you want to conclude this practice session and generate your performance report?")
                 col_c1, col_c2 = st.columns(2)
                 with col_c1:
                     if st.button("✅ Yes, Generate Performance Report", type="primary", use_container_width=True):
                         st.session_state.sim_in_progress = False
                         st.session_state.confirm_end_sim = False
                         
-                        # Generate Mock / AI Performance Report
                         total_turns = len([m for m in st.session_state.sim_messages if m['role'] == 'user'])
-                        base_score = 82 if total_turns >= 2 else 65
+                        base_score = 84 if total_turns >= 2 else 68
                         
                         report = {
                             "overall": base_score,
-                            "communication": min(100, base_score + 5),
-                            "needs_discovery": min(100, base_score - 4),
-                            "objection_handling": min(100, base_score + 2),
-                            "product_knowledge": min(100, base_score + 6),
-                            "closing_skills": min(100, base_score - 8),
+                            "communication": min(100, base_score + 4),
+                            "needs_discovery": min(100, base_score - 3),
+                            "objection_handling": min(100, base_score + 3),
+                            "product_knowledge": min(100, base_score + 5),
+                            "closing_skills": min(100, base_score - 6),
                             "strengths": [
-                                "Maintained professional composure and validated the customer's initial fear.",
-                                "Avoided defensive arguments when the prospect challenged pricing.",
-                                "Successfully guided the dialogue toward business outcomes rather than feature lists."
+                                f"Validated {active_sc['persona']['name']}'s core hesitation without sounding defensive.",
+                                "Skillfully shifted the conversation toward risk reduction and business outcomes.",
+                                "Maintained professional authority while asking diagnostic discovery questions."
                             ],
                             "improvements": [
-                                "Could have asked a deeper discovery question regarding the cost of inaction earlier in the call.",
-                                "Allowed the customer to dictate the meeting agenda without setting clear next-step criteria."
+                                "Could quantify the cost of inaction (hours/dollars wasted) earlier in the negotiation.",
+                                "Ensure you propose concrete calendar dates rather than open-ended 'whenever you have time' closes."
                             ],
-                            "better_response": "Instead of saying 'our software is easy to learn', try saying: 'We provide dedicated onboarding engineers who map your data in the background so your reps lose zero active selling hours.'",
-                            "next_practice": "Handling Competitor Lock-In (Snowflake / Tableau)"
+                            "better_response": f"Instead of defending product specs, try saying: 'We understand {active_sc['persona']['name']}—any disruption hurts pipeline. If we wrote a 100% data integrity warranty into our agreement, would you feel confident proceeding?'",
+                            "next_practice": "Handling Deeply Entrenched Competitors"
                         }
                         
                         st.session_state.sim_report = report
@@ -1344,19 +1638,18 @@ elif st.session_state.page == "Practice":
             rep = st.session_state.sim_report
             st.markdown("### 🏆 Post-Practice Performance Report")
             
-            # Score Overview
             c_sc1, c_sc2 = st.columns([1, 2])
             with c_sc1:
                 st.markdown(f"""
-                <div class="saas-card" style="text-align: center; padding: 30px;">
-                    <div style="font-size: 0.9rem; color: #64748B; font-weight: 600; text-transform: uppercase;">Overall Score</div>
-                    <div style="font-size: 4rem; font-weight: 800; color: #4F46E5; margin: 10px 0; font-family: 'Outfit';">{rep['overall']}</div>
-                    <span class="badge badge-emerald">Proficient Sales Pitch</span>
+                <div class="saas-card" style="text-align: center; padding: 32px 20px;">
+                    <div style="font-size: 0.9rem; color: #64748B; font-weight: 700; text-transform: uppercase;">Overall Score</div>
+                    <div style="font-size: 4rem; font-weight: 800; color: #4F46E5; margin: 10px 0; font-family: 'Plus Jakarta Sans';">{rep['overall']}</div>
+                    <span class="badge badge-emerald">High Competency Pitch</span>
                 </div>
                 """, unsafe_allow_html=True)
             with c_sc2:
                 st.markdown("<div class='saas-card'>", unsafe_allow_html=True)
-                st.markdown("##### Skill Breakdown")
+                st.markdown("##### 5-Axis Skill Breakdown")
                 
                 skills = [
                     ("Communication & Clarity", rep["communication"]),
@@ -1370,7 +1663,6 @@ elif st.session_state.page == "Practice":
                     st.progress(s_val / 100.0)
                 st.markdown("</div>", unsafe_allow_html=True)
 
-            # Strengths & Improvements
             col_str, col_imp = st.columns(2)
             with col_str:
                 st.markdown("""
@@ -1394,7 +1686,6 @@ elif st.session_state.page == "Practice":
                 </div>
                 """.format(rep["improvements"][0], rep["improvements"][1]), unsafe_allow_html=True)
 
-            # Better Response Example
             st.markdown(f"""
             <div class="saas-card saas-card-accent">
                 <h4 style="color: #4F46E5; margin-bottom: 8px;">💡 Stronger Response Example</h4>
@@ -1402,7 +1693,6 @@ elif st.session_state.page == "Practice":
             </div>
             """, unsafe_allow_html=True)
 
-            # Buttons
             col_rep1, col_rep2, col_rep3 = st.columns(3)
             with col_rep1:
                 if st.button("🔄 Practise Again", use_container_width=True, type="primary"):
@@ -1426,77 +1716,106 @@ elif st.session_state.page == "Practice":
 elif st.session_state.page == "Scenario Library":
     st.markdown("""
     <div style="margin-bottom: 24px;">
-        <h1 style="margin: 0; font-size: 2.2rem;">📚 Scenario Library</h1>
-        <p style="color: #64748B; margin: 4px 0 0 0;">Explore real-world sales challenges across B2B enterprise software, retail, consulting, and outbound sales.</p>
+        <h1 style="margin: 0; font-size: 2.3rem;">📚 Scenario Library</h1>
+        <p style="color: #64748B; margin: 4px 0 0 0;">Explore curated sales challenges across enterprise software, retail, consulting, and outbound sales.</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Filters
     col_f1, col_f2 = st.columns([1, 1])
     with col_f1:
-        cat_filter = st.radio("Category Filter", ["All", "B2B", "B2C"], horizontal=True)
+        cat_filter = st.radio("Category Filter", ["All", "B2B", "B2C", "My Custom Deals"], horizontal=True)
     with col_f2:
         diff_filter = st.radio("Difficulty Filter", ["All", "Beginner", "Intermediate", "Advanced"], horizontal=True)
         
     st.write("")
     
-    # Filter scenarios
-    filtered_keys = []
-    for k, v in SCENARIOS.items():
-        if (cat_filter == "All" or v["category"] == cat_filter) and (diff_filter == "All" or v["difficulty"] == diff_filter):
-            filtered_keys.append(k)
-            
-    if not filtered_keys:
-        st.info("No scenarios match your active filters. Try resetting the filters.")
+    # Custom Scenarios Display if requested
+    if cat_filter == "My Custom Deals":
+        if not st.session_state.custom_scenarios:
+            st.info("You haven't created any custom deal scenarios yet. Go to Practice -> Live Pitch Simulator -> 'Create Custom Scenario' to build one!")
+        else:
+            for c_k, c_v in st.session_state.custom_scenarios.items():
+                st.markdown(f"""
+                <div class="saas-card saas-card-accent">
+                    <span class="badge badge-purple" style="margin-bottom: 8px;">Custom Pipeline Deal</span>
+                    <h3 style="margin: 0 0 8px 0;">{c_v['title']}</h3>
+                    <div style="font-size: 0.9rem; color: #475569; margin-bottom: 10px;">
+                        <strong>Prospect:</strong> {c_v['customer']} • <strong>Industry:</strong> {c_v['industry']}
+                    </div>
+                    <div style="background: #F8FAFC; border-radius: 8px; padding: 12px; font-size: 0.85rem; color: #1E293B; margin-bottom: 12px;">
+                        <strong>Core Objection:</strong> "{c_v['objection']}"
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                if st.button(f"🎭 Launch Practice for {c_k}", key=f"launch_custom_{c_k}", type="primary"):
+                    st.session_state.sim_scenario_source = "Custom"
+                    st.session_state.active_custom_scenario = c_v
+                    st.session_state.page = "Practice"
+                    st.session_state.practice_mode = "Live Pitch Simulator"
+                    st.session_state.sim_in_progress = True
+                    st.session_state.sim_messages = [{
+                        "role": "assistant",
+                        "content": f"Hi. Look, the proposal looks fine, but {c_v['objection']} What can you do for us?"
+                    }]
+                    st.rerun()
     else:
-        # Display Grid
-        for i in range(0, len(filtered_keys), 2):
-            cols = st.columns(2)
-            for j in range(2):
-                if i + j < len(filtered_keys):
-                    sc_k = filtered_keys[i + j]
-                    sc = SCENARIOS[sc_k]
-                    diff_badge = "badge-emerald" if sc["difficulty"] == "Beginner" else ("badge-amber" if sc["difficulty"] == "Intermediate" else "badge-rose")
-                    
-                    with cols[j]:
-                        st.markdown(f"""
-                        <div class="saas-card" style="height: 100%;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <span class="badge badge-indigo">{sc['category']} • {sc['industry']}</span>
-                                <span class="badge {diff_badge}">{sc['difficulty']}</span>
-                            </div>
-                            <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">{sc['title']}</h3>
-                            <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 12px;">{sc['description']}</p>
-                            <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.85rem; color: #475569;">
-                                <strong>Target Buyer:</strong> {sc['customer']}<br/>
-                                <strong>Objection:</strong> <em>"{sc['objection'][:85]}..."</em>
-                            </div>
-                        </div>
-                        """, unsafe_allow_html=True)
+        filtered_keys = []
+        for k, v in SCENARIOS.items():
+            if (cat_filter == "All" or v["category"] == cat_filter) and (diff_filter == "All" or v["difficulty"] == diff_filter):
+                filtered_keys.append(k)
+                
+        if not filtered_keys:
+            st.info("No scenarios match your active filters. Try resetting the filters.")
+        else:
+            for i in range(0, len(filtered_keys), 2):
+                cols = st.columns(2)
+                for j in range(2):
+                    if i + j < len(filtered_keys):
+                        sc_k = filtered_keys[i + j]
+                        sc = SCENARIOS[sc_k]
+                        diff_badge = "badge-emerald" if sc["difficulty"] == "Beginner" else ("badge-amber" if sc["difficulty"] == "Intermediate" else "badge-rose")
                         
-                        col_btn_a, col_btn_b = st.columns(2)
-                        with col_btn_a:
-                            if st.button("🛡️ Objection Coach", key=f"lib_obj_{sc_k}", use_container_width=True):
-                                st.session_state.coach_product = sc["product"]
-                                st.session_state.coach_industry = sc["industry"]
-                                st.session_state.coach_price = sc["price"]
-                                st.session_state.coach_customer = sc["customer"]
-                                st.session_state.coach_objection = sc["objection"]
-                                st.session_state.coach_context = sc["context"]
-                                st.session_state.page = "Practice"
-                                st.session_state.practice_mode = "Objection Coach"
-                                st.rerun()
-                        with col_btn_b:
-                            if st.button("🎭 Start Roleplay", key=f"lib_sim_{sc_k}", use_container_width=True, type="primary"):
-                                st.session_state.sim_scenario = sc_k
-                                st.session_state.page = "Practice"
-                                st.session_state.practice_mode = "Live Pitch Simulator"
-                                st.session_state.sim_in_progress = True
-                                st.session_state.sim_messages = [{
-                                    "role": "assistant",
-                                    "content": f"Hi. Look, the proposal looks fine, but {sc['objection']} How do you justify this?"
-                                }]
-                                st.rerun()
+                        with cols[j]:
+                            st.markdown(f"""
+                            <div class="saas-card" style="height: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span class="badge badge-indigo">{sc['category']} • {sc['industry']}</span>
+                                    <span class="badge {diff_badge}">{sc['difficulty']}</span>
+                                </div>
+                                <h3 style="margin: 0 0 8px 0; font-size: 1.25rem;">{sc['title']}</h3>
+                                <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 12px;">{sc['description']}</p>
+                                <div style="background: #F8FAFC; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 0.85rem; color: #475569;">
+                                    <strong>Target Buyer:</strong> {sc['customer']}<br/>
+                                    <strong>Objection:</strong> <em>"{sc['objection'][:85]}..."</em>
+                                </div>
+                            </div>
+                            """, unsafe_allow_html=True)
+                            
+                            col_btn_a, col_btn_b = st.columns(2)
+                            with col_btn_a:
+                                if st.button("🛡️ Objection Coach", key=f"lib_obj_{sc_k}", use_container_width=True):
+                                    st.session_state.coach_product = sc["product"]
+                                    st.session_state.coach_industry = sc["industry"]
+                                    st.session_state.coach_price = sc["price"]
+                                    st.session_state.coach_customer = sc["customer"]
+                                    st.session_state.coach_objection = sc["objection"]
+                                    st.session_state.coach_context = sc["context"]
+                                    st.session_state.page = "Practice"
+                                    st.session_state.practice_mode = "Objection Coach"
+                                    st.rerun()
+                            with col_btn_b:
+                                if st.button("🎭 Start Roleplay", key=f"lib_sim_{sc_k}", use_container_width=True, type="primary"):
+                                    st.session_state.sim_scenario_source = "Library"
+                                    st.session_state.sim_scenario = sc_k
+                                    st.session_state.active_custom_scenario = None
+                                    st.session_state.page = "Practice"
+                                    st.session_state.practice_mode = "Live Pitch Simulator"
+                                    st.session_state.sim_in_progress = True
+                                    st.session_state.sim_messages = [{
+                                        "role": "assistant",
+                                        "content": f"Hi. Look, the proposal looks fine, but {sc['objection']} How do you justify this?"
+                                    }]
+                                    st.rerun()
 
 # ------------------------------------------
 # 5. MY PERFORMANCE & ANALYTICS
@@ -1504,8 +1823,8 @@ elif st.session_state.page == "Scenario Library":
 elif st.session_state.page == "My Performance":
     st.markdown("""
     <div style="margin-bottom: 24px;">
-        <h1 style="margin: 0; font-size: 2.2rem;">📊 My Performance & Analytics</h1>
-        <p style="color: #64748B; margin: 4px 0 0 0;">Track your objection-handling scores, roleplay simulations, and competency growth over time.</p>
+        <h1 style="margin: 0; font-size: 2.3rem;">📊 My Performance & Analytics</h1>
+        <p style="color: #64748B; margin: 4px 0 0 0;">Track your objection-handling scores, roleplay simulations, and closing competency over time.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1575,7 +1894,7 @@ elif st.session_state.page == "My Performance":
 elif st.session_state.page == "Learning Hub":
     st.markdown("""
     <div style="margin-bottom: 24px;">
-        <h1 style="margin: 0; font-size: 2.2rem;">💡 Sales Learning Hub</h1>
+        <h1 style="margin: 0; font-size: 2.3rem;">💡 Sales Learning Hub</h1>
         <p style="color: #64748B; margin: 4px 0 0 0;">Bite-sized, practical masterclasses on customer psychology, modern objection handling, and closing frameworks.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -1590,7 +1909,7 @@ elif st.session_state.page == "Learning Hub":
 elif st.session_state.page == "Settings":
     st.markdown("""
     <div style="margin-bottom: 24px;">
-        <h1 style="margin: 0; font-size: 2.2rem;">⚙️ Settings & API Configuration</h1>
+        <h1 style="margin: 0; font-size: 2.3rem;">⚙️ Settings & API Configuration</h1>
         <p style="color: #64748B; margin: 4px 0 0 0;">Manage your AI model providers, credentials, and response parameters.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -1693,7 +2012,8 @@ elif st.session_state.page == "Settings":
     
     st.markdown("<div class='saas-card'>", unsafe_allow_html=True)
     st.subheader("ℹ️ Application Information")
-    st.write("**Application Version:** 2.0.0 (SaaS Redesign)")
+    st.write("**Application Version:** 2.2.0 (Enterprise SaaS Upgrade)")
     st.write("**Engine:** Dual-Provider Orchestration (Gemini + Groq)")
+    st.write("**Custom Scenarios:** Enabled (Pipeline Deal Simulator)")
     st.write("**Demo Mode:** Enabled automatically when no API key is supplied.")
     st.markdown("</div>", unsafe_allow_html=True)
