@@ -620,28 +620,96 @@ if "practice_history" not in st.session_state:
 
 # --- API HELPER FUNCTIONS ---
 def call_gemini_api(api_key, system_prompt, prompt, model="gemini-3.5-flash"):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    models_to_try = [model]
+    for m_fallback in ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]:
+        if m_fallback not in models_to_try:
+            models_to_try.append(m_fallback)
+
+    headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "systemInstruction": {"parts": [{"text": system_prompt}]},
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2048}
+        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048}
     }
-    headers = {"Content-Type": "application/json"}
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        if response.status_code == 200:
-            res_data = response.json()
-            return res_data["candidates"][0]["content"]["parts"][0]["text"]
+
+    last_error = ""
+    for current_model in models_to_try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{current_model}:generateContent?key={api_key}"
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=25)
+            if response.status_code == 200:
+                res_data = response.json()
+                if "candidates" in res_data and res_data["candidates"]:
+                    c_parts = res_data["candidates"][0].get("content", {}).get("parts", [])
+                    if c_parts and "text" in c_parts[0]:
+                        return c_parts[0]["text"]
+            else:
+                try:
+                    last_error = response.json().get("error", {}).get("message", response.text)
+                except:
+                    last_error = response.text
+                # If model is not found (404) or bad model parameter (400), try fallback model
+                if response.status_code in (400, 404):
+                    continue
+        except Exception as e:
+            last_error = str(e)
+            
+    if last_error:
+        st.session_state.last_api_error = last_error
+    return None
+
+def generate_smart_sim_reply(active_sc, user_msg, sim_messages, difficulty):
+    persona = active_sc.get("persona", {})
+    p_name = persona.get("name", "Prospect")
+    p_role = persona.get("role", "Decision Maker")
+    p_concern = persona.get("main_concern", active_sc.get("objection", "pricing and risk"))
+    prod = active_sc.get("product", "your solution")
+    industry = active_sc.get("industry", "our industry")
+    
+    user_turns = len([m for m in sim_messages if m["role"] == "user"])
+    u_lower = user_msg.lower()
+    
+    has_price = any(w in u_lower for w in ["price", "cost", "budget", "expensive", "fee", "discount", "payment", "cheap", "roi", "dollar", "$", "invest", "financial"])
+    has_guarantee = any(w in u_lower for w in ["guarantee", "warranty", "proof", "case study", "results", "ensure", "promise", "safe", "risk", "track record", "reference", "certif"])
+    has_time = any(w in u_lower for w in ["meeting", "demo", "call", "schedule", "tuesday", "thursday", "friday", "monday", "tomorrow", "next week", "minutes", "calendar", "sync"])
+    has_onboarding = any(w in u_lower for w in ["migration", "setup", "onboarding", "training", "transition", "adopt", "downtime", "implement", "friction", "switch"])
+    has_question = "?" in user_msg
+    
+    if user_turns == 1:
+        if has_guarantee:
+            return f"You talk about guarantees, but in {industry}, we've had vendors promise the world before. When it comes to our specific issue—{p_concern}—what concrete evidence do you have that {prod} won't cause the exact same headache for my team?"
+        elif has_price:
+            return f"ROI sounds great on a spreadsheet, but our budget was set months ago. Even if {prod} makes sense long-term, {p_concern}. How do you expect us to justify that expenditure to leadership right now?"
+        elif has_onboarding:
+            return f"Saying your team handles the setup is easy, but my staff is already operating at capacity. Specifically regarding {p_concern}, how many hours of internal resources are you really going to pull from us in the first 30 days?"
+        elif has_question:
+            return f"To be direct with you: yes, that's part of the puzzle. But the real blocker keeping me up at night is {p_concern}. What is your immediate strategy to eliminate that risk for {p_name}?"
         else:
-            try:
-                err_msg = response.json().get("error", {}).get("message", response.text)
-            except:
-                err_msg = response.text
-            st.error(f"⚠️ Google API Error ({response.status_code}): {err_msg}")
-            return None
-    except Exception as e:
-        st.error(f"Connection error to Gemini: {str(e)}")
-        return None
+            return f"Look, I appreciate your perspective, but you're skipping over our primary hurdle: {p_concern}. How exactly does {prod} solve that without creating new friction for our team?"
+
+    elif user_turns == 2:
+        if has_time:
+            return f"Before I block out 20 minutes on my calendar, I need one thing clear: if we evaluate {prod}, what happens if we run into {p_concern}? Do you offer milestone sign-offs or written guarantees?"
+        elif has_guarantee or has_onboarding:
+            return f"That does sound more reassuring. If your team takes accountability for the transition, that removes some anxiety. But what about the ongoing support once the sales team hands us off?"
+        elif has_price:
+            return f"If the commercial structure can be tied to performance milestones, that might soften leadership's stance. But can you show me a case study of another {p_role} who overcame {p_concern} with you?"
+        else:
+            return f"That's a fair perspective. But in practical terms, how quickly can our team see measurable value before we get trapped in a long commitment with {prod}?"
+
+    elif user_turns == 3:
+        if has_time:
+            return f"Alright, you've earned a short conversation. Send over the one-page summary and reference customer cases. If you can show me how you protect us from {p_concern}, I'm open to meeting next Tuesday at 2 PM."
+        elif has_guarantee or has_price:
+            return f"If you're willing to put that warranty into the pilot agreement in writing, I'm open to taking this to our committee. What does the onboarding timeline look like if we start next month?"
+        else:
+            return f"You've addressed the main points well. If you can document that in a proposal with clear exit clauses if we hit {p_concern}, I think we can discuss a small pilot."
+
+    else:
+        if has_time:
+            return f"Confirmed. Send the calendar invite and the documentation to my inbox. If our technical lead approves the security review, we'll finalize the kickoff on that call."
+        else:
+            return f"I'm satisfied with how you've handled our concerns regarding {p_concern}. Send over the formal agreement with the terms we discussed for {prod}, and we'll schedule our review with the executive team."
 
 def call_groq_api(api_key, system_prompt, prompt, model="llama-3.3-70b-versatile"):
     url = "https://api.groq.com/openai/v1/chat/completions"
@@ -1565,19 +1633,16 @@ elif st.session_state.page == "Practice":
                 Respond in 2-3 sentences as the customer. Keep it realistic, direct, and conversational. Do not break character.
                 """
                 
-                prompt_hist = "\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.sim_messages[-6:]])
-                prompt_hist += "\nCustomer Response:"
+                dialogue_lines = []
+                for m in st.session_state.sim_messages[-6:]:
+                    speaker = "Sales Rep" if m['role'] == 'user' else active_sc['persona']['name']
+                    dialogue_lines.append(f"{speaker}: {m['content']}")
+                prompt_hist = "\n".join(dialogue_lines) + f"\n{active_sc['persona']['name']} (reply directly to the Sales Rep regarding your concern '{active_sc['persona']['main_concern']}'):"
                 
                 with st.spinner(f"{active_sc['persona']['name']} is thinking..."):
                     reply = call_ai(sys_sim, prompt_hist)
                     if not reply:
-                        user_turn_count = len([m for m in st.session_state.sim_messages if m['role'] == 'user'])
-                        if user_turn_count == 1:
-                            reply = "That sounds good in theory, but my team has heard software vendors promise smooth outcomes before. What guarantee do we have that your team won't drop the ball?"
-                        elif user_turn_count == 2:
-                            reply = "Fair point on the productivity risk. But how do you propose we structure the milestones so my leadership approves this without pushback?"
-                        else:
-                            reply = "Alright, if you can put that written warranty into the proposal and schedule an onboarding review, I'm open to a 20-minute meeting next Tuesday."
+                        reply = generate_smart_sim_reply(active_sc, user_msg, st.session_state.sim_messages, st.session_state.sim_difficulty)
                             
                     st.session_state.sim_messages.append({"role": "assistant", "content": reply})
                     st.rerun()
