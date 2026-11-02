@@ -477,7 +477,7 @@ if "groq_api_key" not in st.session_state:
     st.session_state.groq_api_key = os.getenv("GROQ_API_KEY", "")
 
 if "gemini_model" not in st.session_state:
-    st.session_state.gemini_model = "gemini-1.5-flash"
+    st.session_state.gemini_model = "gemini-3.5-flash"
 
 if "groq_model" not in st.session_state:
     st.session_state.groq_model = "llama-3.3-70b-versatile"
@@ -1613,25 +1613,40 @@ elif st.session_state.page == "Settings":
             "Google Gemini API Key",
             value=st.session_state.gemini_api_key,
             type="password",
-            placeholder="AIzaSy..."
+            placeholder="AIzaSy...",
+            key="gemini_key_input"
         )
         st.session_state.gemini_api_key = g_key
         
+        gemini_options = [
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-pro",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-1.5-pro"
+        ]
+        
+        if st.session_state.gemini_model not in gemini_options:
+            st.session_state.gemini_model = "gemini-3.5-flash"
+            
+        g_index = gemini_options.index(st.session_state.gemini_model)
+        
+        def on_gemini_change():
+            st.session_state.gemini_model = st.session_state.gemini_select_box
+            
         g_model = st.selectbox(
             "Gemini Model",
-            [
-                "gemini-1.5-flash",
-                "gemini-1.5-pro",
-                "gemini-2.5-flash",
-                "gemini-3.5-flash",
-                "gemini-3.1-pro"
-            ],
-            index=0
+            gemini_options,
+            index=g_index,
+            key="gemini_select_box",
+            on_change=on_gemini_change
         )
         st.session_state.gemini_model = g_model
         
         if g_key:
-            st.success("🔑 Gemini API Key configured and ready!")
+            st.success(f"🔑 Gemini API Key configured! Using {st.session_state.gemini_model}")
         else:
             st.info("💡 You can get a free Gemini API Key from Google AI Studio (aistudio.google.com).")
             
@@ -1640,24 +1655,37 @@ elif st.session_state.page == "Settings":
             "Groq API Key",
             value=st.session_state.groq_api_key,
             type="password",
-            placeholder="gsk_..."
+            placeholder="gsk_...",
+            key="groq_key_input"
         )
         st.session_state.groq_api_key = groq_k
         
+        groq_options = [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it"
+        ]
+        
+        if st.session_state.groq_model not in groq_options:
+            st.session_state.groq_model = "llama-3.3-70b-versatile"
+            
+        gr_index = groq_options.index(st.session_state.groq_model)
+        
+        def on_groq_change():
+            st.session_state.groq_model = st.session_state.groq_select_box
+
         gr_model = st.selectbox(
             "Groq Model",
-            [
-                "llama-3.3-70b-versatile",
-                "llama-3.1-8b-instant",
-                "mixtral-8x7b-32768",
-                "gemma2-9b-it"
-            ],
-            index=0
+            groq_options,
+            index=gr_index,
+            key="groq_select_box",
+            on_change=on_groq_change
         )
         st.session_state.groq_model = gr_model
         
         if groq_k:
-            st.success("🔑 Groq API Key configured and ready for ultra-fast LPU inference!")
+            st.success(f"🔑 Groq API Key configured! Using {st.session_state.groq_model}")
         else:
             st.info("💡 You can get a free Groq API Key from console.groq.com.")
             
